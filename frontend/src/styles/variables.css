@@ -1,0 +1,49 @@
+/**
+ * デザイントークン（色・フォント・余白・ブレークポイント）
+ * 値は現時点の仮設定。デザイン調整フェーズで差し替える。
+ */
+:root {
+  --color-bg: #ffffff;
+  --color-bg-soft: #f4f7fb;
+  --color-primary: #1b3a6b;
+  --color-primary-dark: #10233f;
+  --color-accent: #2f6fed;
+  --color-accent-soft: #eaf1ff;
+  --color-text: #1f2430;
+  --color-text-muted: #5b6472;
+  --color-border: #e2e6ee;
+  --color-white: #ffffff;
+
+  /* Section背景装飾（淡いブロブ等）用。White/Light Blueに加えて淡いPurpleを1点だけ追加 */
+  --color-purple-soft: #f2eefc;
+
+  /* Section 05（なぜ市場価値が高まるのか）のCTA boxで使用予定の暖色アクセント */
+  --color-warm-accent: #f0995c;
+  --color-warm-soft: #fdf1e4;
+
+  --font-sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+
+  /*
+   * LP全体の幅の階層:
+   * --lp-max-width  … Hero / Header内部の上限（Hero元画像の実サイズ 1658px を基準）
+   * --container-width … 本文Section（01〜08 / Final CTA）の読みやすい上限
+   * 大画面でHeroだけが不自然に巨大化しないよう、本文側もやや広めに確保している。
+   */
+  --lp-max-width: 1658px;
+  --container-width: 1280px;
+  --container-padding: 24px;
+
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 40px;
+  --space-xl: 64px;
+  --space-2xl: 96px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --breakpoint-sp: 768px;
+  --breakpoint-tablet: 1024px;
+}

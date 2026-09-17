@@ -1,0 +1,201 @@
+/**
+ * リセット & 共通クラス
+ * セクション固有のスタイルは各コンポーネントの scoped style に書く。
+ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * 見出しの共通デフォルト（濃いNavy・太字）。
+ * 各Sectionの見出しは基本的にこの値を引き継ぐ。個別に色/太さを変えたい場合は
+ * それぞれのコンポーネントの scoped style で上書きしてよい。
+ */
+h1,
+h2,
+h3 {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.section {
+  padding-block: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-block: var(--space-xl);
+  }
+}
+
+/*
+ * Section背景の共通Visual（Step 1: 土台のみ。Step 2以降、各Sectionのscoped styleで
+ * クラスを付与して使う。ここではどのSectionにも自動適用しない）。
+ *
+ * .section-tint … White → Light Blue → Light Purple の縦グラデーション。
+ *   単純に背景色を変えたいだけのSectionはこのクラスだけで足りる。
+ *
+ * .section-bg-decor … 本文の背後に、ぼかした円形ブロブを配置する仕組み。
+ *   位置・大きさ・色・濃さはすべてCSS変数で上書き可能（デフォルト値あり）。
+ *   isolation:isolate で独自のスタッキングコンテキストを作るため、
+ *   z-index:-1 の装飾がページ全体ではなく該当Section内だけで背面に回る。
+ *   pointer-events:none でクリック/タップを妨げず、overflow:hidden で
+ *   Sectionの外側にはみ出さないようにしている。
+ */
+.section-tint {
+  background: linear-gradient(
+    180deg,
+    var(--color-bg) 0%,
+    var(--color-accent-soft) 55%,
+    var(--color-purple-soft) 100%
+  );
+}
+
+.section-bg-decor {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.section-bg-decor::before,
+.section-bg-decor::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.section-bg-decor::before {
+  top: var(--decor-1-top, -10%);
+  left: var(--decor-1-left, -8%);
+  width: var(--decor-1-size, 420px);
+  height: var(--decor-1-size, 420px);
+  background: var(--decor-1-color, var(--color-accent-soft));
+  opacity: var(--decor-1-opacity, 0.6);
+}
+
+.section-bg-decor::after {
+  bottom: var(--decor-2-bottom, -12%);
+  right: var(--decor-2-right, -8%);
+  width: var(--decor-2-size, 420px);
+  height: var(--decor-2-size, 420px);
+  background: var(--decor-2-color, var(--color-purple-soft));
+  opacity: var(--decor-2-opacity, 0.6);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-list li {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  background: var(--color-bg-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  margin-bottom: var(--space-sm);
+}
+
+.check-list li::before {
+  content: '✓';
+  color: var(--color-accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.placeholder-image {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-soft);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: var(--space-sm);
+}
