@@ -12,6 +12,7 @@
  */
 
 import heroMainDesktop from '../assets/images/hero/hero-main.png'
+import heroMainMobile from '../assets/images/hero/hero-main-sp.png'
 import finalCtaImage from '../assets/images/final-cta.png'
 import interviewMain from '../assets/images/interview-main.jpg'
 import projectWebApp from '../assets/projects/project-web-app.png'
@@ -41,13 +42,13 @@ export const headerCta = {
  * キャッチコピー・リード文・人物・背景などはすべて画像側に含まれているため、
  * ここではテキストではなく画像パスと alt テキストのみを管理する。
  *
- * mobileImage は現時点では未用意（null）。SP専用画像を用意できたら
- * ここに追加するだけで HeroSection 側の picture 要素が自動的に出し分ける。
+ * mobileImage を設定すると、HeroSection側の<picture>が
+ * 767px以下でこちらを自動的に出し分ける（テンプレート・CSSは変更不要）。
  */
 export const hero = {
   alt: 'AIを使いこなし、これからの市場で求められるエンジニアへ。PREAI',
   desktopImage: heroMainDesktop,
-  mobileImage: null,
+  mobileImage: heroMainMobile,
 }
 
 export const teamMembersSection = {
