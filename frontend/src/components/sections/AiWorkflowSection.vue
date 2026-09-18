@@ -1,20 +1,49 @@
 <script setup>
+import { computed } from 'vue'
 import { aiWorkflowSection } from '../../data/lpContent.js'
 import SectionHeading from '../ui/SectionHeading.vue'
+
+/*
+ * 「AIは、エンジニアの可能性を広げるパートナー。」を3行に分割して表示する。
+ * SectionHeading.vue自体は変更禁止のため、noteプロパティは渡さずこのSectionだけで
+ * ローカルにnoteを描画する（ProjectsSectionのlinkLabelと同じ発想）。
+ * 文章自体はlpContent.jsの既存データそのままで、改行位置だけをここで決めている
+ * （TeamMembersSection.vueのnoteLinesと同じ手法。3行目は「を」の直後で分割する）。
+ */
+const noteLines = computed(() => {
+  const note = aiWorkflowSection.heading.note
+  if (!note) return ['', '', '']
+  const [first, rest] = note.split('、')
+  if (!rest) return [note, '', '']
+  const splitIndex = rest.indexOf('を') + 1
+  if (splitIndex <= 0) return [`${first}、`, rest, '']
+  return [`${first}、`, rest.slice(0, splitIndex), rest.slice(splitIndex)]
+})
 </script>
 
 <template>
   <section :id="aiWorkflowSection.id" class="section ai-workflow section-tint section-bg-decor">
     <div class="container">
-      <SectionHeading
-        :number="aiWorkflowSection.heading.number"
-        :title="aiWorkflowSection.heading.title"
-        :lead="aiWorkflowSection.heading.lead"
-        :note="aiWorkflowSection.heading.note"
-      />
+      <div class="workflow-heading-row">
+        <SectionHeading
+          :number="aiWorkflowSection.heading.number"
+          :title="aiWorkflowSection.heading.title"
+          :lead="aiWorkflowSection.heading.lead"
+        />
+
+        <div v-if="aiWorkflowSection.heading.note" class="workflow-note-wrap">
+          <span class="workflow-note-mark workflow-note-mark-1" aria-hidden="true"></span>
+          <span class="workflow-note-mark workflow-note-mark-2" aria-hidden="true"></span>
+          <p class="workflow-note">
+            <span class="workflow-note-line">{{ noteLines[0] }}</span>
+            <span class="workflow-note-line">{{ noteLines[1] }}</span>
+            <span class="workflow-note-line">{{ noteLines[2] }}</span>
+          </p>
+        </div>
+      </div>
 
       <div class="workflow-inner">
-        <div class="tools-panel">
+        <div class="tools-panel" v-scroll-reveal-child="{ delay: 135, delaySp: 90 }">
           <p class="tools-label">{{ aiWorkflowSection.toolsLabel }}</p>
           <ul class="tools-list">
             <li v-for="tool in aiWorkflowSection.tools" :key="tool.id">
@@ -24,7 +53,7 @@ import SectionHeading from '../ui/SectionHeading.vue'
           </ul>
         </div>
 
-        <ol class="steps-flow">
+        <ol class="steps-flow" v-scroll-reveal-child="{ delay: 225, delaySp: 170 }">
           <li v-for="(step, index) in aiWorkflowSection.steps" :key="step.step" class="step-item">
             <div class="step-card">
               <span class="step-number">{{ step.step }}</span>
@@ -83,16 +112,106 @@ import SectionHeading from '../ui/SectionHeading.vue'
   padding-block: var(--space-lg);
 }
 
-/* SectionHeading.vue本体は変更せず、noteだけこのSection専用の手書き風スタイルに上書きする */
-.ai-workflow :deep(.heading-note) {
-  max-width: 170px;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: normal;
-  line-height: 1.7;
+/*
+ * 見出し行：SectionHeading.vue本体は変更せず、隣にnoteを独自要素として配置する
+ * （ProjectsSection.vueの.heading-rowと同じ構成）。
+ */
+.workflow-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.workflow-heading-row :deep(.section-heading) {
+  flex: 1 1 420px;
+  margin-bottom: 0;
+}
+
+/*
+ * note：TeamMembersSection.vue「いろんな経験が、ここでつながっている。」と同じ
+ * Visual Language（手書き風フォント・青系グラデーション・カーブした下線・
+ * 浮遊アニメーション）を踏襲しつつ、3行構成・青単色グラデーションでSection固有の
+ * 個性を出す（紫は使わずSection01と差別化）。
+ */
+.workflow-note-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  margin-top: 4px;
+  transform: rotate(-2deg);
+  animation: workflowNoteFloat 5.5s ease-in-out infinite;
+}
+
+@keyframes workflowNoteFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(-1deg); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .workflow-note-wrap:hover {
+    animation: none;
+    transform: translateY(-3px) rotate(-1deg) scale(1.02);
+    transition: transform 0.3s ease;
+    cursor: default;
+  }
+}
+
+.workflow-note-mark {
+  position: absolute;
+  top: -8px;
+  width: 2px;
+  height: 11px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #20a7ef, transparent);
+  pointer-events: none;
+}
+
+.workflow-note-mark-1 { right: 16px; transform: rotate(14deg); }
+.workflow-note-mark-2 { right: 9px; height: 8px; opacity: 0.7; transform: rotate(14deg); }
+
+.workflow-note {
+  position: relative;
+  max-width: 220px;
+  font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.75;
   letter-spacing: 0.05em;
-  color: #3282d6;
-  transform: rotate(-4deg);
+  white-space: pre-line;
+  text-align: right;
+  background: linear-gradient(90deg, #159de4, #359df5, #4b8dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(50, 130, 255, 0.08));
+}
+
+.workflow-note-line {
+  display: block;
+}
+
+.workflow-note-wrap::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -7px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #20a7ef, #4b8dff, #6fb6f7);
+  transform: rotate(-1.5deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workflow-note-wrap {
+    animation: none;
+  }
+
+  .workflow-note-wrap:hover {
+    transform: rotate(-2deg);
+  }
 }
 
 .workflow-inner {
@@ -244,6 +363,10 @@ import SectionHeading from '../ui/SectionHeading.vue'
   .step-card h3 {
     font-size: 15px;
   }
+
+  .workflow-note {
+    font-size: 16px;
+  }
 }
 
 /*
@@ -251,12 +374,22 @@ import SectionHeading from '../ui/SectionHeading.vue'
  * AI Tool Listを上段・4Stepを2×2グリッドに組み替える（矢印は非表示）。
  */
 @media (max-width: 860px) {
-  .ai-workflow :deep(.section-heading) {
+  .workflow-heading-row {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .ai-workflow :deep(.heading-note) {
+  .workflow-heading-row :deep(.section-heading) {
+    flex: 1 1 auto;
+  }
+
+  .workflow-note-wrap {
+    align-self: flex-start;
+    margin-top: var(--space-sm);
+    margin-left: 24px;
+  }
+
+  .workflow-note {
     text-align: left;
   }
 
@@ -292,6 +425,15 @@ import SectionHeading from '../ui/SectionHeading.vue'
  * 矢印も → ではなく ↓ に変える。
  */
 @media (max-width: 767px) {
+  .workflow-note-wrap {
+    margin-left: 4px;
+  }
+
+  .workflow-note {
+    max-width: none;
+    font-size: 15px;
+  }
+
   .tools-list {
     flex-direction: column;
   }

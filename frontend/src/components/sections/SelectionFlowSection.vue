@@ -263,13 +263,52 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
   content: '\2192';
 }
 
-/* 右：選考期間・内定目安のSummary Box（縦長カードではなく横長・コンパクトに） */
+/*
+ * 右：選考期間・内定目安のSummary Box（縦長カードではなく横長・コンパクトに）。
+ * サイズ・背景・border-radius・内部レイアウトはそのまま維持し、
+ * Box全体にだけ柔らかいShadow＋非常にゆっくりしたFloat Animationを追加して
+ * 「少し浮いて見える」立体感を出す。Noteは.flow-summaryの子要素のため、
+ * 別Animationを持たせなくてもBox全体と自然に一緒に浮く。
+ */
 .flow-summary {
   grid-area: summary;
   background: linear-gradient(135deg, rgba(222, 245, 255, 0.95), rgba(255, 255, 255, 0.95));
   border: 1px solid rgba(27, 58, 107, 0.08);
   border-radius: 14px;
   padding: 10px var(--space-md);
+  box-shadow:
+    0 10px 30px rgba(55, 105, 210, 0.1),
+    0 4px 12px rgba(95, 135, 230, 0.08);
+  animation: selectionSummaryFloat 5s ease-in-out infinite;
+}
+
+@keyframes selectionSummaryFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .flow-summary:hover {
+    animation: none;
+    transform: translateY(-8px);
+    transition: transform 0.3s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-summary {
+    animation: none;
+  }
+
+  .flow-summary:hover {
+    transform: none;
+    transition: none;
+  }
 }
 
 .summary-top {

@@ -1,0 +1,77 @@
+/*
+ * LP全体のScroll Reveal Animation。
+ * このclassはApp.vueで v-scroll-reveal directiveを付与したSection root要素にのみ、
+ * JS（directive）側から動的に付与される。CSS側で最初からopacity:0にはしていないため、
+ * JSが実行されない環境でも .scroll-reveal class自体が付かず、常に通常表示のまま読める
+ * （Progressive Enhancement）。
+ *
+ * 各Sectionコンポーネント内部の既存Animation（Note float、Section Heading reveal、
+ * WORK/PEOPLE marquee等）は、いずれもこのclassが付くroot要素より内側の子要素に
+ * 個別のtransform/animationを持っているため、ここで上書きすることはない。
+ */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(35px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* SPでは移動距離とdurationを少し小さくし、スクロール直後に内容が見えない時間を減らす */
+@media (max-width: 767px) {
+  .scroll-reveal {
+    transform: translateY(22px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/*
+ * Section 01〜05専用：Heading（各Sectionの既存Reveal機構をそのまま使用、ここでは触れない）
+ * とは別に、その下のContent（画像・カード・文章・Timeline等）だけに使う、少し軽く速い
+ * Reveal Profile。既存Content要素そのもの（grid/flexの直接の子）にこのclassを付与するだけで、
+ * 新しいwrapper divを増やさずに済むケースではレイアウトに一切影響しない。
+ */
+.scroll-reveal-child {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-reveal-child.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+  .scroll-reveal-child {
+    transform: translateY(17px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal-child {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

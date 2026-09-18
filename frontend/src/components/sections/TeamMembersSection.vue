@@ -1,8 +1,21 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { teamMembersSection } from '../../data/lpContent.js'
 import TagList from '../ui/TagList.vue'
 import PlaceholderImage from '../ui/PlaceholderImage.vue'
+
+/*
+ * 「いろんな経験が、ここでつながっている。」を句読点で2行に分割して表示する。
+ * 文章自体はlpContent.jsの既存データそのままで、改行位置だけをテンプレート側で決めている
+ * （InterviewSection.vueのnoteLinesと同じ手法）。
+ */
+const noteLines = computed(() => {
+  const note = teamMembersSection.heading.note
+  if (!note) return ['', '']
+  const parts = note.split('、')
+  if (parts.length < 2) return [note, '']
+  return [`${parts[0]}、`, parts.slice(1).join('、')]
+})
 
 /*
  * 他Section（SectionHeading.vue）と同じReveal Animationの仕組みを、
@@ -54,15 +67,25 @@ onBeforeUnmount(() => {
               </p>
             </div>
           </div>
-          <p v-if="teamMembersSection.heading.note" class="heading-note">
-            {{ teamMembersSection.heading.note }}
-          </p>
+          <div v-if="teamMembersSection.heading.note" class="heading-note-wrap">
+            <span class="note-mark note-mark-1" aria-hidden="true"></span>
+            <span class="note-mark note-mark-2" aria-hidden="true"></span>
+            <p class="heading-note">
+              <span class="note-line">{{ noteLines[0] }}</span>
+              <span class="note-line">{{ noteLines[1] }}</span>
+            </p>
+          </div>
         </div>
       </div>
 
       <!-- 3名を独立カードではなく、1つの連続した紹介エリアとして表示する -->
       <div class="member-table">
-        <div v-for="member in teamMembersSection.members" :key="member.id" class="member-row">
+        <div
+          v-for="(member, index) in teamMembersSection.members"
+          :key="member.id"
+          class="member-row"
+          v-scroll-reveal-child="{ delay: 150 + index * 90, delaySp: 90 + index * 70 }"
+        >
           <div class="member-photo">
             <PlaceholderImage :src="member.image" :label="member.name" ratio="16 / 9" />
           </div>
@@ -320,15 +343,106 @@ onBeforeUnmount(() => {
   }
 }
 
+/*
+ * 「いろんな経験が、ここでつながっている。」は白いカード・吹き出しを使わず、
+ * 背景に直接書いた手書きメモのように見せる。
+ * Animationを2層に分ける：
+ * 1. .heading-note-wrap … 常時ごくゆっくりのFloat（translateY + rotateの微調整）
+ * 2. Hover時はwrapのanimationを一旦noneにしてから静的なtransformへtransition
+ *    （実行中のAnimationへの単純なtransform上書きは効かないため）。
+ * rotate(-3deg)はanimationが無効化された場合（reduced-motion）にも
+ * 基本姿勢として残るよう、静的なtransformとしてベースに書いておく。
+ */
+.heading-note-wrap {
+  position: relative;
+  transform: rotate(-3deg);
+  animation: memberNoteFloat 5s ease-in-out infinite;
+}
+
+@keyframes memberNoteFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-2deg);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .heading-note-wrap:hover {
+    animation: none;
+    transform: translateY(-3px) rotate(-1deg) scale(1.02);
+    transition: transform 0.3s ease;
+    cursor: default;
+  }
+}
+
+/* Note右上の小さい「//」風Accent（手書きメモを強調している記号のイメージ） */
+.note-mark {
+  position: absolute;
+  top: -9px;
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #20a7ef, transparent);
+  pointer-events: none;
+}
+
+.note-mark-1 {
+  right: 20px;
+  transform: rotate(16deg);
+}
+
+.note-mark-2 {
+  right: 12px;
+  height: 9px;
+  opacity: 0.7;
+  transform: rotate(16deg);
+}
+
 .heading-note {
-  font-size: 17px;
-  font-weight: 500;
-  color: #3488db;
-  line-height: 1.7;
-  letter-spacing: 0.08em;
+  position: relative;
+  font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.8;
+  letter-spacing: 0.07em;
   white-space: pre-line;
   text-align: right;
-  transform: rotate(-4deg);
+  background: linear-gradient(90deg, #159de4, #4b8dff, #8b7cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(50, 130, 255, 0.08));
+}
+
+.note-line {
+  display: block;
+}
+
+/* borderを使わない、サッと引いた手書きマーカー風のUnderline */
+.heading-note-wrap::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -7px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #20a7ef, #6b8cff, #a27cf5);
+  transform: rotate(-2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading-note-wrap {
+    animation: none;
+  }
+
+  .heading-note-wrap:hover {
+    transform: rotate(-3deg);
+  }
 }
 
 /* 連続した社員紹介エリア（独立カードにしない） */
@@ -449,6 +563,10 @@ onBeforeUnmount(() => {
   .people-bg-text {
     font-size: clamp(58px, 14vw, 115px);
   }
+
+  .heading-note {
+    font-size: 19px;
+  }
 }
 
 /* 768px: Photo|Profile と Quote の2段構成に切り替える */
@@ -493,7 +611,14 @@ onBeforeUnmount(() => {
     align-items: flex-start;
   }
 
+  /* PEOPLE背景文字とぴったり重ならないよう、SPだけ少し下・右へずらす（margin指定でtransformとは競合させない） */
+  .heading-note-wrap {
+    margin-top: 20px;
+    margin-left: 24px;
+  }
+
   .heading-note {
+    font-size: 17px;
     text-align: left;
   }
 

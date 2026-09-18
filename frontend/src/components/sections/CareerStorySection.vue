@@ -14,7 +14,7 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
       />
 
       <div class="story-inner">
-        <div class="member-block">
+        <div class="member-block" v-scroll-reveal-child="{ delay: 140, delaySp: 100 }">
           <p class="career-story-label" aria-hidden="true"><span>Career</span><span>Story</span></p>
 
           <div class="member-photo">
@@ -30,7 +30,7 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
           <p class="member-previous">前職：{{ careerStorySection.member.previousJob }}</p>
         </div>
 
-        <ol class="timeline">
+        <ol class="timeline" v-scroll-reveal-child="{ delay: 240, delaySp: 180 }">
           <li v-for="(item, index) in careerStorySection.timeline" :key="index" class="timeline-item">
             <span class="timeline-year">{{ item.year }}</span>
 

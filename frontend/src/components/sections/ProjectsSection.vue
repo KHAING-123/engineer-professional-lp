@@ -3,6 +3,25 @@ import { projectsSection } from '../../data/lpContent.js'
 import SectionHeading from '../ui/SectionHeading.vue'
 import TagList from '../ui/TagList.vue'
 import PlaceholderImage from '../ui/PlaceholderImage.vue'
+
+/*
+ * 各categoryのnoteを、参考画像と同じ自然な位置で2行に分割する。
+ * lpContent.jsの文章自体は変更せず、category.idごとに区切り位置だけをここで決める。
+ */
+const noteLines = (category) => {
+  const note = category.note
+  if (category.id === 'web') {
+    const splitIndex = note.indexOf('で') + 1
+    return [note.slice(0, splitIndex), note.slice(splitIndex)]
+  }
+  if (category.id === 'mobile') {
+    const splitIndex = note.indexOf('ら') + 1
+    return [note.slice(0, splitIndex), note.slice(splitIndex)]
+  }
+  const parts = note.split('、')
+  if (parts.length < 2) return [note, '']
+  return [`${parts[0]}、`, parts.slice(1).join('、')]
+}
 </script>
 
 <template>
@@ -18,13 +37,32 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
             :title="projectsSection.heading.title"
             :lead="projectsSection.heading.lead"
           />
-          <a :href="projectsSection.linkHref" class="link">{{ projectsSection.linkLabel }} →</a>
+          <span class="projects-label">
+            <span class="projects-decor" aria-hidden="true">
+              <span class="pdeco pdot-1"></span>
+              <span class="pdeco pdot-2"></span>
+              <span class="pdeco pdot-3"></span>
+              <span class="pdeco pdot-4"></span>
+              <span class="pdeco pdot-5"></span>
+              <span class="pdeco pdot-6"></span>
+              <span class="pdeco pglow-1"></span>
+              <span class="pdeco pglow-2"></span>
+              <span class="pdeco pstar-1"></span>
+              <span class="pdeco pstar-2"></span>
+            </span>
+            <span class="projects-label__text">{{ projectsSection.linkLabel }}</span>
+          </span>
         </div>
       </div>
 
       <!-- 3つの仕事を独立カードではなく、連続した横長Rowとして表示する -->
       <div class="category-table">
-        <div v-for="category in projectsSection.categories" :key="category.id" class="category-row">
+        <div
+          v-for="(category, index) in projectsSection.categories"
+          :key="category.id"
+          class="category-row"
+          v-scroll-reveal-child="{ delay: 130 + index * 90, delaySp: 90 + index * 80 }"
+        >
           <div class="category-icon" :class="`category-icon-${category.id}`">
             <svg v-if="category.id === 'web'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="12" rx="1.5" />
@@ -51,8 +89,11 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
             <PlaceholderImage :src="category.image" :label="category.title" ratio="16 / 9" />
           </div>
 
-          <div class="note-wrap">
-            <p class="category-note">{{ category.note }}</p>
+          <div class="note-wrap" :class="`note-wrap-${category.id}`">
+            <p class="category-note">
+              <span class="note-line">{{ noteLines(category)[0] }}</span>
+              <span class="note-line note-line-2">{{ noteLines(category)[1] }}</span>
+            </p>
           </div>
         </div>
       </div>
@@ -142,13 +183,301 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   margin-bottom: 0;
 }
 
-.link {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--color-primary-dark);
+/*
+ * 「PROJECTS」はLinkではなく、Section 02右上の装飾的なタイトルとして表示する。
+ * クリック不可・cursor:default・ButtonやCard風の囲みは一切持たせない。
+ * ::beforeで背後に非常に薄いGlow、周囲にBlue/Cyan/Purpleの小さな装飾（span×4）を浮かせる。
+ */
+.projects-label {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
   margin-top: var(--space-xs);
+  /*
+   * .heading-row は justify-content:space-between のため、このLabelは
+   * .heading-area（overflow:hidden、WORK文字のClip用）の右端にほぼ隙間なく接している。
+   * 右へ広がるBubble/Glowが確実にclipされないよう、20pxの余白を確保する。
+   */
+  margin-right: 20px;
+  cursor: default;
+  user-select: none;
+}
+
+/* Layer順: 文字が最前面(2) → Bubble/Sparkle(1) → 背後のGlow(0)。isolationでこのLabel内だけに閉じる */
+.projects-label::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 35px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(69, 157, 255, 0.12), rgba(145, 112, 246, 0.05) 55%, transparent 75%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.projects-label__text {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  background: linear-gradient(90deg, #0b2d5c 0%, #168ee8 55%, #7568ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* 文字自体は非常に小さいFloatだけにとどめ、周囲のBubbleの方が目立つようにする */
+  animation: projectsLabelFloat 5s ease-in-out infinite;
+}
+
+@keyframes projectsLabelFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* 手書きで引いたような短いUnderline。border-bottomは使わずtext自身の::afterで表現する */
+.projects-label__text::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  bottom: -7px;
+  width: 92%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #16a6e8, #428cff, #9875f4);
+  transform: rotate(-2deg);
+  transform-origin: center;
+  animation: projectsUnderlinePulse 6s ease-in-out infinite;
+}
+
+@keyframes projectsUnderlinePulse {
+  0%,
+  100% {
+    transform: rotate(-2deg) scaleX(0.94);
+  }
+  50% {
+    transform: rotate(-2deg) scaleX(1);
+  }
+}
+
+/*
+ * PROJECTS周囲のCircle/Bubble/Sparkle。文字の外側へ左上・右上・左中央・右中央・左下・右下と
+ * 非対称に散らし、それぞれ違うduration/delay/animationで同時に動かないようにする。
+ * .projects-labelがisolation:isolateを持つため、z-index:1はこのLabel内だけで文字(2)の
+ * 後ろ・背景Glow(0)の前に安定して収まる。
+ */
+.projects-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pdeco {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/* small: Cyan */
+.pdot-1 {
+  top: -1px;
+  left: -14px;
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle, #20bceb, rgba(32, 188, 235, 0.3));
+  opacity: 0.85;
+  animation: projectsBubbleFloatA 3.2s ease-in-out infinite;
+}
+
+/* medium: Blue */
+.pdot-2 {
+  top: -7px;
+  left: 28%;
+  width: 9px;
+  height: 9px;
+  background: radial-gradient(circle, #398bff, rgba(57, 139, 255, 0.25));
+  opacity: 0.62;
+  animation: projectsBubbleFloatB 4.1s ease-in-out infinite;
+  animation-delay: -1.2s;
+}
+
+/* small: Purple */
+.pdot-3 {
+  top: 1px;
+  right: -10px;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #9674f5, rgba(150, 116, 245, 0.3));
+  opacity: 0.8;
+  animation: projectsBubbleFloatC 4.8s ease-in-out infinite;
+  animation-delay: -2.1s;
+}
+
+/* large: Light Blue（大きいものほどopacityを落として奥行きを出す） */
+.pdot-4 {
+  top: 45%;
+  left: -22px;
+  width: 15px;
+  height: 15px;
+  background: radial-gradient(circle, #58c8ff, rgba(88, 200, 255, 0.2));
+  opacity: 0.4;
+  animation: projectsBubbleFloatA 5.5s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* medium: Light Purple */
+.pdot-5 {
+  bottom: -12px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #c69bff, rgba(198, 155, 255, 0.25));
+  opacity: 0.55;
+  animation: projectsBubbleFloatB 6.2s ease-in-out infinite;
+  animation-delay: -0.5s;
+}
+
+/* small: Cyan */
+.pdot-6 {
+  bottom: -18px;
+  left: 25%;
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle, #20bceb, rgba(32, 188, 235, 0.3));
+  opacity: 0.78;
+  animation: projectsBubbleFloatC 3.2s ease-in-out infinite;
+  animation-delay: -1.8s;
+}
+
+/* Glow Bubble: Blue */
+.pglow-1 {
+  top: 20%;
+  right: -14px;
+  width: 18px;
+  height: 18px;
+  background: rgba(67, 174, 255, 0.35);
+  box-shadow: 0 0 10px rgba(67, 174, 255, 0.35), 0 0 20px rgba(122, 111, 255, 0.18);
+  animation: projectsBubbleFloatA 4.1s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+
+/* Glow Bubble: Purple */
+.pglow-2 {
+  bottom: -4px;
+  left: -18px;
+  width: 14px;
+  height: 14px;
+  background: rgba(150, 116, 245, 0.32);
+  box-shadow: 0 0 9px rgba(150, 116, 245, 0.32), 0 0 18px rgba(67, 174, 255, 0.15);
+  animation: projectsBubbleFloatB 4.8s ease-in-out infinite;
+  animation-delay: -0.9s;
+}
+
+/* 4方向に尖ったSparkle。画像ではなくclip-pathで形を作る */
+.pstar-1 {
+  top: -5px;
+  left: 45%;
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  background: linear-gradient(135deg, #25b8f1, #398bff);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+  animation: projectsSparkleTwinkle 4s ease-in-out infinite;
+}
+
+.pstar-2 {
+  bottom: -14px;
+  right: 30%;
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
+  background: linear-gradient(135deg, #9674f5, #c69bff);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+  animation: projectsSparkleTwinkle 4.6s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+@keyframes projectsBubbleFloatA {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(5px, -7px) scale(1.15);
+  }
+}
+
+@keyframes projectsBubbleFloatB {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-6px, 5px) scale(0.9);
+  }
+}
+
+@keyframes projectsBubbleFloatC {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(4px, -5px);
+  }
+  66% {
+    transform: translate(-3px, -8px);
+  }
+}
+
+@keyframes projectsSparkleTwinkle {
+  0%,
+  100% {
+    transform: scale(0.8) rotate(-6deg);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.25) rotate(6deg);
+    opacity: 0.9;
+  }
+}
+
+/* Tablet: Circle/Bubbleを8個→6個に間引く（5〜7個の目安） */
+@media (max-width: 1024px) {
+  .pdot-4,
+  .pglow-2 {
+    display: none;
+  }
+}
+
+/* SP: Circle/Bubbleを6個→4個、Sparkleを2個→1個に間引く（4〜5個の目安） */
+@media (max-width: 767px) {
+  .pdot-2,
+  .pdot-5,
+  .pstar-2 {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-label__text,
+  .projects-label__text::after,
+  .pdeco {
+    animation: none;
+  }
 }
 
 /* 3段の仕事Rowをまとめて1つの緩やかな連続Visualにする（独立カードにしない） */
@@ -162,7 +491,7 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
 
 .category-row {
   display: grid;
-  grid-template-columns: 80px minmax(300px, 1fr) minmax(230px, 280px) 140px;
+  grid-template-columns: 80px minmax(300px, 1fr) minmax(230px, 280px) 190px;
   grid-template-areas:
     'icon title image note'
     'icon desc  image note'
@@ -170,7 +499,7 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   column-gap: var(--space-md);
   row-gap: 4px;
   align-items: center;
-  padding: 18px 28px;
+  padding: 28px 28px;
   border-bottom: 1px solid rgba(27, 58, 107, 0.08);
 }
 
@@ -225,11 +554,35 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   padding: 2px 7px;
 }
 
+/*
+ * 画像コンテナ：左上・右下が斜めに切れたParallelogram型に加工する。
+ * サイズ（width/height）は既存のまま維持し、aspect-ratioは
+ * width/heightが明示されている限り無効（サイズへの影響なし）。
+ */
 .category-image {
   grid-area: image;
   align-self: center;
+  position: relative;
   width: 100%;
-  height: 96px;
+  height: 120px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 18px;
+  clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+  box-shadow: 0 18px 40px rgba(32, 72, 150, 0.12);
+  transition: transform 0.35s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .category-image:hover {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-image {
+    transition: none;
+  }
 }
 
 .category-image :deep(.placeholder-image),
@@ -243,36 +596,90 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   object-fit: cover;
 }
 
-/* Noteの背景にある淡いBlueの円形Visual */
+/*
+ * note：テキスト＋背景円を「1つのwrapper」としてまとめてrotateすることで、
+ * 参考画像のように手書きメモを少し斜めに置いたような一体感を出す。
+ * 円は.note-wrap::beforeで作成し（画像不使用）、wrapperごと傾けるためcircle自体には
+ * 個別のrotateを持たせない。3note共通のサイズ・角度・文字スタイルにし、円の色だけを変える。
+ */
 .note-wrap {
   grid-area: note;
   align-self: center;
   position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 170px;
+  padding-right: 10px;
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .note-wrap:hover {
+    transform: rotate(-3deg) translateY(-4px) scale(1.02);
+  }
 }
 
 .note-wrap::before {
   content: '';
   position: absolute;
-  width: 100px;
-  height: 100px;
+  z-index: 0;
+  top: 50%;
+  right: 0;
+  width: 170px;
+  height: 170px;
   border-radius: 50%;
-  background: rgba(70, 155, 245, 0.1);
+  background: rgba(185, 216, 255, 0.35);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.note-wrap-mobile::before {
+  background: rgba(207, 196, 255, 0.32);
+}
+
+.note-wrap-data::before {
+  background: rgba(180, 225, 255, 0.35);
 }
 
 .category-note {
   position: relative;
   z-index: 1;
-  max-width: 120px;
-  font-size: 17px;
-  font-weight: 500;
+  font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
   line-height: 1.5;
-  letter-spacing: 0.05em;
-  color: #3978bd;
-  text-align: center;
-  transform: rotate(-5deg);
+  letter-spacing: 0.06em;
+  text-align: left;
+  color: #1768c5;
+  background: linear-gradient(135deg, #245fad 0%, #3d7fc9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 2px 2px rgba(30, 100, 190, 0.16),
+    0 5px 10px rgba(30, 100, 190, 0.1);
+}
+
+.note-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.note-line-2 {
+  margin-left: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-wrap {
+    transition: none;
+  }
+
+  .note-wrap:hover {
+    transform: rotate(-5deg);
+  }
 }
 
 /* Tablet（1024px）: 4ゾーン構成は維持し、サイズだけ縮小する */
@@ -284,9 +691,9 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   }
 
   .category-row {
-    grid-template-columns: 64px 1fr 210px 120px;
+    grid-template-columns: 64px 1fr 210px 160px;
     column-gap: var(--space-sm);
-    padding: 16px var(--space-lg);
+    padding: 22px var(--space-lg);
   }
 
   .category-icon {
@@ -300,17 +707,20 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   }
 
   .category-image {
-    height: 84px;
+    height: 108px;
+  }
+
+  .note-wrap {
+    min-height: 140px;
   }
 
   .note-wrap::before {
-    width: 84px;
-    height: 84px;
+    width: 140px;
+    height: 140px;
   }
 
   .category-note {
-    font-size: 15px;
-    max-width: 100px;
+    font-size: 18px;
   }
 }
 
@@ -325,7 +735,7 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   }
 
   .category-row {
-    grid-template-columns: 56px 1fr 110px;
+    grid-template-columns: 56px 1fr 150px;
     grid-template-areas:
       'icon title title'
       'icon desc  desc'
@@ -345,7 +755,20 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   }
 
   .category-image {
-    height: 100px;
+    height: 124px;
+  }
+
+  .note-wrap {
+    min-height: 120px;
+  }
+
+  .note-wrap::before {
+    width: 120px;
+    height: 120px;
+  }
+
+  .category-note {
+    font-size: 14px;
   }
 }
 
@@ -374,8 +797,12 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
     flex-basis: auto;
   }
 
-  .link {
+  .projects-label {
     align-self: flex-end;
+  }
+
+  .projects-label__text {
+    font-size: 17px;
   }
 
   .category-row {
@@ -406,15 +833,22 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   }
 
   .category-image {
-    height: 180px;
+    height: 204px;
   }
 
   .note-wrap {
     justify-self: center;
+    min-height: 200px;
+    padding-right: 8px;
+  }
+
+  .note-wrap::before {
+    width: 200px;
+    height: 200px;
   }
 
   .category-note {
-    transform: none;
+    font-size: 16px;
   }
 }
 </style>

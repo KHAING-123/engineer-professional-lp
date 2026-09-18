@@ -29,13 +29,13 @@ import FinalCtaSection from './components/sections/FinalCtaSection.vue'
 
       <div class="support-interview-band">
         <div class="container support-interview-inner">
-          <CareerSupportSection />
-          <InterviewSection />
+          <CareerSupportSection v-scroll-reveal />
+          <InterviewSection v-scroll-reveal="{ delay: 180 }" />
         </div>
       </div>
 
-      <SelectionFlowSection />
-      <FinalCtaSection />
+      <SelectionFlowSection v-scroll-reveal />
+      <FinalCtaSection v-scroll-reveal />
     </main>
     <AppFooter />
   </div>

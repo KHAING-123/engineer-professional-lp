@@ -14,6 +14,9 @@
 import heroMainDesktop from '../assets/images/hero/hero-main.png'
 import finalCtaImage from '../assets/images/final-cta.png'
 import interviewMain from '../assets/images/interview-main.jpg'
+import projectWebApp from '../assets/projects/project-web-app.png'
+import projectMobileApp from '../assets/projects/project-mobile-app.png'
+import projectDataAi from '../assets/projects/project-data-ai.png'
 
 export const siteMeta = {
   name: 'PREAI',
@@ -112,7 +115,7 @@ export const projectsSection = {
         '業務システム・SaaSの設計・開発・運用・改善など、様々な業界・規模のプロジェクトに関われます。',
       tags: ['JavaScript', 'TypeScript', 'React', 'Vue.js', 'Node.js', 'PHP'],
       note: 'Webで社会を動かす。',
-      image: null,
+      image: projectWebApp,
     },
     {
       id: 'mobile',
@@ -120,7 +123,7 @@ export const projectsSection = {
       description: 'iOS / Androidアプリの設計・開発・運用・改善で、日常に寄り添うサービスを届けます。',
       tags: ['Swift', 'Kotlin', 'Flutter', 'React Native', 'Dart'],
       note: 'スマホから新しい体験を。',
-      image: null,
+      image: projectMobileApp,
     },
     {
       id: 'data',
@@ -128,7 +131,7 @@ export const projectsSection = {
       description: 'データ分析基盤やAIモデルの構築・検証・運用で、データ力で新しい価値をつくります。',
       tags: ['Python', 'R', 'TensorFlow', 'Scikit-learn'],
       note: 'データで、未来をつくる。',
-      image: null,
+      image: projectDataAi,
     },
   ],
 }
@@ -161,7 +164,7 @@ export const careerStorySection = {
   id: 'career-story',
   heading: {
     number: '04',
-    title: '社員のキャリアストーリー（例）',
+    title: '社員のキャリアストーリー',
     lead: '実際のメンバーの成長イメージです。あなたらしい未来を描けます。',
   },
   member: {
