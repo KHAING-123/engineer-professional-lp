@@ -426,7 +426,7 @@ const noteLines = computed(() => {
  */
 @media (max-width: 767px) {
   .workflow-note-wrap {
-    margin-left: 4px;
+    margin-left: 54px;
   }
 
   .workflow-note {
