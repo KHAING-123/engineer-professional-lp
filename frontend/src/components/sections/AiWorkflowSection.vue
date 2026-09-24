@@ -47,7 +47,10 @@ const noteLines = computed(() => {
           <p class="tools-label">{{ aiWorkflowSection.toolsLabel }}</p>
           <ul class="tools-list">
             <li v-for="tool in aiWorkflowSection.tools" :key="tool.id">
-              <span class="tool-icon" aria-hidden="true">{{ tool.name.charAt(0) }}</span>
+              <span class="tool-icon" aria-hidden="true">
+                <img v-if="tool.icon" :src="tool.icon" :alt="tool.name" class="tool-icon-img" />
+                <template v-else>{{ tool.name.charAt(0) }}</template>
+              </span>
               <span class="tool-name">{{ tool.name }}</span>
             </li>
           </ul>
@@ -59,23 +62,26 @@ const noteLines = computed(() => {
               <span class="step-number">{{ step.step }}</span>
 
               <div class="step-icon" aria-hidden="true">
-                <svg v-if="step.step === '01'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="10" cy="10" r="6" />
-                  <path d="M20 20l-5.5-5.5" />
-                </svg>
-                <svg v-else-if="step.step === '02'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 18h6" />
-                  <path d="M10 21h4" />
-                  <path d="M12 3a6 6 0 0 0-3 11.2c.5.3.8.9.8 1.5V16h4.4v-.3c0-.6.3-1.2.8-1.5A6 6 0 0 0 12 3Z" />
-                </svg>
-                <svg v-else-if="step.step === '03'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M8 8l-4 4 4 4" />
-                  <path d="M16 8l4 4-4 4" />
-                </svg>
-                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 17l5-5 4 4 8-8" />
-                  <path d="M15 8h5v5" />
-                </svg>
+                <img v-if="step.icon" :src="step.icon" :alt="step.title" />
+                <template v-else>
+                  <svg v-if="step.step === '01'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10" cy="10" r="6" />
+                    <path d="M20 20l-5.5-5.5" />
+                  </svg>
+                  <svg v-else-if="step.step === '02'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18h6" />
+                    <path d="M10 21h4" />
+                    <path d="M12 3a6 6 0 0 0-3 11.2c.5.3.8.9.8 1.5V16h4.4v-.3c0-.6.3-1.2.8-1.5A6 6 0 0 0 12 3Z" />
+                  </svg>
+                  <svg v-else-if="step.step === '03'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 8l-4 4 4 4" />
+                    <path d="M16 8l4 4-4 4" />
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 17l5-5 4 4 8-8" />
+                    <path d="M15 8h5v5" />
+                  </svg>
+                </template>
               </div>
 
               <h3>{{ step.title }}</h3>
@@ -256,6 +262,14 @@ const noteLines = computed(() => {
   font-weight: 700;
 }
 
+/* 既存の.tool-icon（26pxの円形表示領域）内に、指定Icon画像をそのまま収める */
+.tool-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .tool-name {
   font-size: 14px;
   font-weight: 700;
@@ -310,9 +324,11 @@ const noteLines = computed(() => {
   color: var(--color-accent);
 }
 
-.step-icon svg {
+.step-icon svg,
+.step-icon img {
   width: 42px;
   height: 42px;
+  object-fit: contain;
 }
 
 .step-card h3 {
@@ -355,7 +371,8 @@ const noteLines = computed(() => {
     font-size: 22px;
   }
 
-  .step-icon svg {
+  .step-icon svg,
+  .step-icon img {
     width: 36px;
     height: 36px;
   }

@@ -18,6 +18,26 @@ import interviewMain from '../assets/images/interview-main.jpg'
 import projectWebApp from '../assets/projects/project-web-app.png'
 import projectMobileApp from '../assets/projects/project-mobile-app.png'
 import projectDataAi from '../assets/projects/project-data-ai.png'
+import member01 from '../assets/images/members/member-01.png'
+import member02 from '../assets/images/members/member-02.png'
+import member03 from '../assets/images/members/member-03.png'
+import chatGptIcon from '../assets/images/icons/ai-tools/chatGPT_icon.png'
+import githubCopilotIcon from '../assets/images/icons/ai-tools/GitHub_copilot_icon.png'
+import claudeIcon from '../assets/images/icons/ai-tools/claude_icon.png'
+import notionAiIcon from '../assets/images/icons/ai-tools/notion_ai_icon.png'
+import figmaAiIcon from '../assets/images/icons/ai-tools/figma_ai_icon.png'
+import careerMember from '../assets/images/career/career-member.png'
+import careerSupportMember from '../assets/images/support/career_support_member.png'
+import aiWorkResearch from '../assets/images/icons/ai-work/ai-work-research.png'
+import aiWorkIdea from '../assets/images/icons/ai-work/ai-work-idea.png'
+import aiWorkDevelopment from '../assets/images/icons/ai-work/ai-work-development.png'
+import aiWorkReview from '../assets/images/icons/ai-work/ai-work-review.png'
+import careerChoiceCrown from '../assets/images/icons/career-choice/career-choice-crown.png'
+import selectionDocument from '../assets/images/icons/selection-flow/selection-document.png'
+import selectionCasualInterview from '../assets/images/icons/selection-flow/selection-casual-interview.png'
+import selectionInterview from '../assets/images/icons/selection-flow/selection-interview.png'
+import selectionConditions from '../assets/images/icons/selection-flow/selection-conditions.png'
+import selectionOffer from '../assets/images/icons/selection-flow/selection-offer.png'
 
 export const siteMeta = {
   name: 'PREAI',
@@ -70,7 +90,7 @@ export const teamMembersSection = {
         'AIツールを活用して業務効率を上げ、もっと良いサービスをつくれるようになりました。',
       tags: ['Vue.js', 'TypeScript', 'AI活用'],
       comment: '好きな技術をもっと深く、そして、社会に役立つものをつくりたい。',
-      image: null,
+      image: member01,
     },
     {
       id: 'kh',
@@ -82,7 +102,7 @@ export const teamMembersSection = {
         '上流工程や顧客課題解決に関わることで、エンジニアとしての視野が広がっています。',
       tags: ['Java', 'Python', '顧客課題'],
       comment: '技術で課題を解決する楽しさを、あらためて感じています。',
-      image: null,
+      image: member02,
     },
     {
       id: 'ts',
@@ -94,7 +114,7 @@ export const teamMembersSection = {
         'データ分析とAIの組み合わせで、社会に役立つサービスに関われるのがやりがいです。',
       tags: ['Python', 'SQL', 'データ分析'],
       comment: 'データから新しい価値を生み出し、人の役に立つことがやりがいです。',
-      image: null,
+      image: member03,
     },
   ],
 }
@@ -147,17 +167,17 @@ export const aiWorkflowSection = {
   },
   toolsLabel: '主に使えるAIツール',
   tools: [
-    { id: 'chatgpt', name: 'ChatGPT' },
-    { id: 'copilot', name: 'GitHub Copilot' },
-    { id: 'claude', name: 'Claude' },
-    { id: 'notion-ai', name: 'Notion AI' },
-    { id: 'figma-ai', name: 'Figma AI' },
+    { id: 'chatgpt', name: 'ChatGPT', icon: chatGptIcon },
+    { id: 'copilot', name: 'GitHub Copilot', icon: githubCopilotIcon },
+    { id: 'claude', name: 'Claude', icon: claudeIcon },
+    { id: 'notion-ai', name: 'Notion AI', icon: notionAiIcon },
+    { id: 'figma-ai', name: 'Figma AI', icon: figmaAiIcon },
   ],
   steps: [
-    { step: '01', title: '情報収集', description: 'AIで情報を素早くキャッチアップ' },
-    { step: '02', title: 'アイデア出し', description: 'AIで発想を広げ、最適な解決策を検討' },
-    { step: '03', title: '開発・実装', description: 'コード生成や補助で開発スピードを向上' },
-    { step: '04', title: 'レビュー・改善', description: 'AIでレビューや改善案を提案し品質を高める' },
+    { step: '01', title: '情報収集', description: 'AIで情報を素早くキャッチアップ', icon: aiWorkResearch },
+    { step: '02', title: 'アイデア出し', description: 'AIで発想を広げ、最適な解決策を検討', icon: aiWorkIdea },
+    { step: '03', title: '開発・実装', description: 'コード生成や補助で開発スピードを向上', icon: aiWorkDevelopment },
+    { step: '04', title: 'レビュー・改善', description: 'AIでレビューや改善案を提案し品質を高める', icon: aiWorkReview },
   ],
 }
 
@@ -172,7 +192,7 @@ export const careerStorySection = {
     name: 'Y.Mさん',
     role: 'フロントエンドエンジニア',
     previousJob: 'Web制作会社',
-    image: null,
+    image: careerMember,
   },
   timeline: [
     {
@@ -210,6 +230,7 @@ export const marketValueSection = {
   ],
   ctaBox: {
     title: '自分でキャリアを選べるエンジニアへ！',
+    crownImage: careerChoiceCrown,
   },
 }
 
@@ -226,7 +247,7 @@ export const careerSupportSection = {
     '定期的なキャリア面談で目標設定',
     '将来的なキャリアプランを一緒に考える',
   ],
-  image: null,
+  image: careerSupportMember,
 }
 
 export const interviewSection = {
@@ -262,11 +283,11 @@ export const selectionFlowSection = {
   offerNote: '内定までのご連絡は　最短1週間',
   note: 'スピーディーに\n次のステップへ…',
   steps: [
-    { step: '01', title: '書類提出', description: '履歴書・職務経歴書', duration: '即日〜1日' },
-    { step: '02', title: 'カジュアル面談', description: '気軽にお話ししましょう', duration: '1〜2日' },
-    { step: '03', title: '面接', description: '現場担当者との面接', duration: '1〜2日' },
-    { step: '04', title: '条件調整', description: '条件のご相談', duration: '1〜2日' },
-    { step: '05', title: '内定', description: '内定のご連絡', duration: '最短1週間' },
+    { step: '01', title: '書類提出', description: '履歴書・職務経歴書', duration: '即日〜1日', icon: selectionDocument },
+    { step: '02', title: 'カジュアル面談', description: '気軽にお話ししましょう', duration: '1〜2日', icon: selectionCasualInterview },
+    { step: '03', title: '面接', description: '現場担当者との面接', duration: '1〜2日', icon: selectionInterview },
+    { step: '04', title: '条件調整', description: '条件のご相談', duration: '1〜2日', icon: selectionConditions },
+    { step: '05', title: '内定', description: '内定のご連絡', duration: '最短1週間', icon: selectionOffer },
   ],
 }
 

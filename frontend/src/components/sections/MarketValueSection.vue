@@ -36,9 +36,11 @@ const noteLines = computed(() => {
         </ol>
 
         <div class="connector" aria-hidden="true" v-scroll-reveal-child="{ delay: 220, delaySp: 160 }">
-          <svg class="connector-chevron" viewBox="0 0 24 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3l16 13-16 13" />
-          </svg>
+          <span class="connector-float">
+            <svg class="connector-chevron" viewBox="0 0 24 32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3l16 13-16 13" />
+            </svg>
+          </span>
         </div>
 
         <div class="result-area" v-scroll-reveal-child="{ delay: 300, delaySp: 235 }">
@@ -52,10 +54,7 @@ const noteLines = computed(() => {
           </div>
 
           <div class="result-box">
-            <svg class="crown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 18h16l1-9-5 4-4-6-4 6-5-4 1 9Z" />
-              <path d="M4 21h16" />
-            </svg>
+            <img :src="marketValueSection.ctaBox.crownImage" alt="" class="crown-icon" aria-hidden="true" />
             <p class="result-text">{{ marketValueSection.ctaBox.title }}</p>
           </div>
         </div>
@@ -101,6 +100,12 @@ const noteLines = computed(() => {
   gap: 7px;
 }
 
+/*
+ * 01〜04の各Row：既存Row本体（background/border/border-radius）は変更せず、
+ * Scroll Revealのtransform（親.reasons-listが担当）とは別に、Row自身にだけ
+ * 非常にゆっくりしたFloat Animationを追加する。4つそれぞれdelayをずらし、
+ * 波のように少しずつ浮いて見えるようにする。
+ */
 .reason-row {
   display: grid;
   grid-template-columns: 56px 210px 1fr;
@@ -112,6 +117,59 @@ const noteLines = computed(() => {
   border: 1px solid rgba(180, 215, 245, 0.3);
   border-radius: 12px;
   box-shadow: none;
+  animation: marketRowFloat 4.6s ease-in-out infinite;
+}
+
+.reason-row:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.reason-row:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.reason-row:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+.reason-row:nth-child(4) {
+  animation-delay: 1.05s;
+}
+
+@keyframes marketRowFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 22px rgba(27, 58, 107, 0.06);
+  }
+  50% {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(27, 58, 107, 0.1);
+  }
+}
+
+@media (max-width: 767px) {
+  .reason-row {
+    animation-name: marketRowFloatSp;
+  }
+}
+
+@keyframes marketRowFloatSp {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 22px rgba(27, 58, 107, 0.06);
+  }
+  50% {
+    transform: translateY(-3px);
+    box-shadow: 0 11px 26px rgba(27, 58, 107, 0.09);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reason-row {
+    animation: none;
+  }
 }
 
 .reason-badge {
@@ -168,6 +226,52 @@ const noteLines = computed(() => {
   width: 26px;
   height: 34px;
   color: #10a7d9;
+}
+
+/*
+ * Arrowの移動・Glowは.connector-chevron自体ではなく、それを包むwrapperに持たせる。
+ * .connector-chevronにはSP専用のrotate(90deg)が既にあるため、同じ要素へ
+ * translateのAnimationを追加すると上書きしてしまう。wrapperを分けることで、
+ * 「SPでの静的な90度回転」と「常時のtranslate移動」を別要素・別transformとして両立させる。
+ */
+.connector-float {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 5px 8px rgba(30, 150, 220, 0.18));
+  animation: marketArrowMove 2.1s ease-in-out infinite;
+}
+
+@keyframes marketArrowMove {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(7px, -2px);
+  }
+}
+
+@media (max-width: 767px) {
+  .connector-float {
+    animation-name: marketArrowMoveSp;
+  }
+}
+
+@keyframes marketArrowMoveSp {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(4px, -2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connector-float {
+    animation: none;
+  }
 }
 
 /* 右：手書きnote＋暖色グラデーションのResult Box */
@@ -288,6 +392,10 @@ const noteLines = computed(() => {
   }
 }
 
+/*
+ * Result Box全体（Crown含む）をゆっくりFloatさせる。Crownは.result-boxの子要素なので
+ * 個別のAnimationを持たせず、親と一緒に自然に動く。
+ */
 .result-box {
   width: 100%;
   min-height: 160px;
@@ -301,11 +409,48 @@ const noteLines = computed(() => {
   box-shadow: none;
   padding: var(--space-lg);
   text-align: center;
+  animation: marketResultFloat 5s ease-in-out infinite;
+}
+
+@keyframes marketResultFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(70, 90, 150, 0.08);
+  }
+  50% {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 35px rgba(70, 90, 150, 0.13);
+  }
+}
+
+@media (max-width: 767px) {
+  .result-box {
+    animation-name: marketResultFloatSp;
+  }
+}
+
+@keyframes marketResultFloatSp {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(70, 90, 150, 0.08);
+  }
+  50% {
+    transform: translateY(-3.5px);
+    box-shadow: 0 16px 32px rgba(70, 90, 150, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-box {
+    animation: none;
+  }
 }
 
 .crown-icon {
-  width: 38px;
-  height: 38px;
+  width: 52px;
+  height: auto;
   color: var(--color-accent);
 }
 

@@ -30,28 +30,31 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
               <span class="flow-number">{{ step.step }}</span>
 
               <div class="flow-icon" aria-hidden="true">
-                <svg v-if="step.step === '01'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 3h7l4 4v14H7Z" />
-                  <path d="M14 3v4h4" />
-                  <path d="M9 13h6" />
-                  <path d="M9 17h6" />
-                </svg>
-                <svg v-else-if="step.step === '02'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 5h16v11H8l-4 3V5Z" />
-                </svg>
-                <svg v-else-if="step.step === '03'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="8" r="3.2" />
-                  <path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5" />
-                </svg>
-                <svg v-else-if="step.step === '04'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="6" y="4" width="12" height="16" rx="2" />
-                  <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
-                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M6 21V4" />
-                  <path d="M6 4h11l-3 4 3 4H6" />
-                </svg>
+                <img v-if="step.icon" :src="step.icon" :alt="step.title" />
+                <template v-else>
+                  <svg v-if="step.step === '01'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 3h7l4 4v14H7Z" />
+                    <path d="M14 3v4h4" />
+                    <path d="M9 13h6" />
+                    <path d="M9 17h6" />
+                  </svg>
+                  <svg v-else-if="step.step === '02'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 5h16v11H8l-4 3V5Z" />
+                  </svg>
+                  <svg v-else-if="step.step === '03'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="3.2" />
+                    <path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5" />
+                  </svg>
+                  <svg v-else-if="step.step === '04'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="12" height="16" rx="2" />
+                    <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 21V4" />
+                    <path d="M6 4h11l-3 4 3 4H6" />
+                  </svg>
+                </template>
               </div>
 
               <h3>{{ step.title }}</h3>
@@ -213,9 +216,11 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
   margin-bottom: 5px;
 }
 
-.flow-icon svg {
+.flow-icon svg,
+.flow-icon img {
   width: 30px;
   height: 30px;
+  object-fit: contain;
 }
 
 .flow-content h3 {
