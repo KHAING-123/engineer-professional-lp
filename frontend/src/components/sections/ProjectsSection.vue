@@ -136,7 +136,7 @@ const noteLines = (category) => {
   pointer-events: none;
   user-select: none;
   text-align: left;
-  font-size: clamp(82px, 13vw, 156px);
+  font-size: clamp(72px, 11.4vw, 137px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.12em;
@@ -686,7 +686,7 @@ const noteLines = (category) => {
 @media (max-width: 1024px) {
   .work-bg-text {
     /* top はフォントサイズに比例して縮める（クリップされる面積比を一定に保つため） */
-    font-size: clamp(66px, 15vw, 123px);
+    font-size: clamp(58px, 13.2vw, 108px);
     top: -18px;
   }
 
@@ -730,7 +730,7 @@ const noteLines = (category) => {
  */
 @media (max-width: 860px) {
   .work-bg-text {
-    font-size: clamp(57px, 16vw, 98px);
+    font-size: clamp(50px, 14.1vw, 86px);
     top: -10px;
   }
 
@@ -778,7 +778,7 @@ const noteLines = (category) => {
  */
 @media (max-width: 767px) {
   .work-bg-text {
-    font-size: clamp(64px, 22vw, 90px);
+    font-size: clamp(56px, 19.4vw, 79px);
     color: rgba(38, 126, 220, 0.14);
     top: -5px;
   }

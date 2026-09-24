@@ -133,7 +133,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   pointer-events: none;
   user-select: none;
-  font-size: clamp(75px, 12vw, 148px);
+  font-size: clamp(66px, 10.5vw, 130px);
   font-weight: 800;
   letter-spacing: 0.12em;
   white-space: nowrap;
@@ -561,7 +561,7 @@ onBeforeUnmount(() => {
   }
 
   .people-bg-text {
-    font-size: clamp(58px, 14vw, 115px);
+    font-size: clamp(51px, 12.3vw, 101px);
   }
 
   .heading-note {
@@ -623,7 +623,7 @@ onBeforeUnmount(() => {
   }
 
   .people-bg-text {
-    font-size: clamp(64px, 22vw, 90px);
+    font-size: clamp(56px, 19.4vw, 79px);
     /* letter-spacingをPC基準のままにすると、中央寄せの文字幅がSP画面幅を超えて左端の「P」が欠ける */
     letter-spacing: 0.02em;
     color: rgba(45, 125, 220, 0.14);

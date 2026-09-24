@@ -165,6 +165,7 @@ export const aiWorkflowSection = {
     lead: '最新のAIツールを日常の業務に取り入れ、アイデアから開発・改善までをスピーディーに進めます。',
     note: 'AIは、エンジニアの可能性を広げるパートナー。',
   },
+  decorativeLabel: 'AI WORK',
   toolsLabel: '主に使えるAIツール',
   tools: [
     { id: 'chatgpt', name: 'ChatGPT', icon: chatGptIcon },
@@ -188,6 +189,7 @@ export const careerStorySection = {
     title: '社員のキャリアストーリー',
     lead: '実際のメンバーの成長イメージです。あなたらしい未来を描けます。',
   },
+  decorativeLabel: 'CAREER',
   member: {
     name: 'Y.Mさん',
     role: 'フロントエンドエンジニア',
@@ -222,6 +224,7 @@ export const marketValueSection = {
     lead: 'PREAIでの経験を通して、他社にもない価値を積み上げていきます。',
     note: '見える景色が、きっと変わる。',
   },
+  decorativeLabel: 'VALUE',
   reasons: [
     { number: '01', title: 'エンジニア経験', description: 'これまでの開発経験をベースにスキルを発展' },
     { number: '02', title: 'AI活用', description: 'AIを使いこなし、生産性とアウトプットを最大化' },

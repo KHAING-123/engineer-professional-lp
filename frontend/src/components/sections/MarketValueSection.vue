@@ -20,11 +20,15 @@ const noteLines = computed(() => {
 <template>
   <section :id="marketValueSection.id" class="section market-value section-tint section-bg-decor">
     <div class="container">
-      <SectionHeading
-        :number="marketValueSection.heading.number"
-        :title="marketValueSection.heading.title"
-        :lead="marketValueSection.heading.lead"
-      />
+      <div class="value-heading-area">
+        <div v-if="marketValueSection.decorativeLabel" class="value-bg-text" aria-hidden="true">{{ marketValueSection.decorativeLabel }}</div>
+
+        <SectionHeading
+          :number="marketValueSection.heading.number"
+          :title="marketValueSection.heading.title"
+          :lead="marketValueSection.heading.lead"
+        />
+      </div>
 
       <div class="value-inner">
         <ol class="reasons-list" v-scroll-reveal-child="{ delay: 140, delaySp: 95 }">
@@ -83,6 +87,58 @@ const noteLines = computed(() => {
 
   /* 参考画像のように横長・コンパクトなSectionにする */
   padding-block: var(--space-lg);
+}
+
+/*
+ * 見出し背景の「VALUE →」は、Section 02（ProjectsSection.vue）の
+ * .heading-area / .work-bg-text / workMarquee と同じ視覚基準で実装する。
+ * .value-innerが独自にmargin-top:var(--space-lg)を持っているため、overflow:hiddenの
+ * wrapperがSectionHeading本体のmargin-bottomを内側へ閉じ込めて余白が二重にならないよう、
+ * ここでだけmargin-bottomを0にしている（ProjectsSection.vueの.heading-rowと同じ考え方）。
+ */
+.value-heading-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.value-heading-area :deep(.section-heading) {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+}
+
+.value-bg-text {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  text-align: left;
+  font-size: clamp(72px, 11.4vw, 137px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: rgba(38, 126, 220, 0.11);
+  animation: valueBgMarquee 14s linear infinite;
+  will-change: transform;
+}
+
+@keyframes valueBgMarquee {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .value-bg-text {
+    animation: none;
+  }
 }
 
 .value-inner {
@@ -464,6 +520,11 @@ const noteLines = computed(() => {
 
 /* Tablet: 3カラムは維持し、Title幅・中央・右の幅だけ縮小する */
 @media (max-width: 1024px) {
+  .value-bg-text {
+    font-size: clamp(58px, 13.2vw, 108px);
+    top: -18px;
+  }
+
   .value-inner {
     grid-template-columns: minmax(0, 1fr) 40px minmax(220px, 260px);
     gap: var(--space-md);
@@ -495,6 +556,12 @@ const noteLines = computed(() => {
  * Chevronも右向きから下向きへ変更する。
  */
 @media (max-width: 768px) {
+  .value-bg-text {
+    font-size: clamp(56px, 19.4vw, 79px);
+    color: rgba(38, 126, 220, 0.14);
+    top: -5px;
+  }
+
   .value-inner {
     grid-template-columns: 1fr;
     row-gap: var(--space-lg);

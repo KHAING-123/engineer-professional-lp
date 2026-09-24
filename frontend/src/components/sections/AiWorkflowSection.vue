@@ -24,21 +24,25 @@ const noteLines = computed(() => {
 <template>
   <section :id="aiWorkflowSection.id" class="section ai-workflow section-tint section-bg-decor">
     <div class="container">
-      <div class="workflow-heading-row">
-        <SectionHeading
-          :number="aiWorkflowSection.heading.number"
-          :title="aiWorkflowSection.heading.title"
-          :lead="aiWorkflowSection.heading.lead"
-        />
+      <div class="workflow-heading-area">
+        <div v-if="aiWorkflowSection.decorativeLabel" class="workflow-bg-text" aria-hidden="true">{{ aiWorkflowSection.decorativeLabel }}</div>
 
-        <div v-if="aiWorkflowSection.heading.note" class="workflow-note-wrap">
-          <span class="workflow-note-mark workflow-note-mark-1" aria-hidden="true"></span>
-          <span class="workflow-note-mark workflow-note-mark-2" aria-hidden="true"></span>
-          <p class="workflow-note">
-            <span class="workflow-note-line">{{ noteLines[0] }}</span>
-            <span class="workflow-note-line">{{ noteLines[1] }}</span>
-            <span class="workflow-note-line">{{ noteLines[2] }}</span>
-          </p>
+        <div class="workflow-heading-row">
+          <SectionHeading
+            :number="aiWorkflowSection.heading.number"
+            :title="aiWorkflowSection.heading.title"
+            :lead="aiWorkflowSection.heading.lead"
+          />
+
+          <div v-if="aiWorkflowSection.heading.note" class="workflow-note-wrap">
+            <span class="workflow-note-mark workflow-note-mark-1" aria-hidden="true"></span>
+            <span class="workflow-note-mark workflow-note-mark-2" aria-hidden="true"></span>
+            <p class="workflow-note">
+              <span class="workflow-note-line">{{ noteLines[0] }}</span>
+              <span class="workflow-note-line">{{ noteLines[1] }}</span>
+              <span class="workflow-note-line">{{ noteLines[2] }}</span>
+            </p>
+          </div>
         </div>
       </div>
 
@@ -119,10 +123,58 @@ const noteLines = computed(() => {
 }
 
 /*
+ * 見出し背景の「AI WORK →」は、Section 02（ProjectsSection.vue）の
+ * .heading-area / .work-bg-text / workMarquee と同じ思想・同じ見た目基準で実装する
+ * （Vue scoped CSSはComponentをまたいで共有できないため、keyframes自体はこのComponent内に
+ * 複製しているが、duration/timing-function/移動距離/opacity/colorはSection 02と揃えている）。
+ */
+.workflow-heading-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.workflow-bg-text {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  text-align: left;
+  font-size: clamp(72px, 11.4vw, 137px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: rgba(38, 126, 220, 0.11);
+  animation: workflowBgMarquee 14s linear infinite;
+  will-change: transform;
+}
+
+@keyframes workflowBgMarquee {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workflow-bg-text {
+    animation: none;
+  }
+}
+
+/*
  * 見出し行：SectionHeading.vue本体は変更せず、隣にnoteを独自要素として配置する
  * （ProjectsSection.vueの.heading-rowと同じ構成）。
+ * 背景の.workflow-bg-text（z-index:0）より前面に出すため、position:relative + z-index:1を持たせる。
  */
 .workflow-heading-row {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -357,6 +409,11 @@ const noteLines = computed(() => {
 
 /* 1024px: AI Tool List | 4Stepの1Row構成を維持し、gap/paddingだけ縮める */
 @media (max-width: 1024px) {
+  .workflow-bg-text {
+    font-size: clamp(58px, 13.2vw, 108px);
+    top: -18px;
+  }
+
   .workflow-inner {
     grid-template-columns: 180px 1fr;
     gap: var(--space-md);
@@ -391,6 +448,11 @@ const noteLines = computed(() => {
  * AI Tool Listを上段・4Stepを2×2グリッドに組み替える（矢印は非表示）。
  */
 @media (max-width: 860px) {
+  .workflow-bg-text {
+    font-size: clamp(50px, 14.1vw, 86px);
+    top: -10px;
+  }
+
   .workflow-heading-row {
     flex-direction: column;
     align-items: flex-start;
@@ -442,6 +504,12 @@ const noteLines = computed(() => {
  * 矢印も → ではなく ↓ に変える。
  */
 @media (max-width: 767px) {
+  .workflow-bg-text {
+    font-size: clamp(56px, 19.4vw, 79px);
+    color: rgba(38, 126, 220, 0.14);
+    top: -5px;
+  }
+
   .workflow-note-wrap {
     margin-left: 54px;
   }

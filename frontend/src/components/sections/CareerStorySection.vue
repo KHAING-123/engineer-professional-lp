@@ -7,11 +7,15 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
 <template>
   <section :id="careerStorySection.id" class="section career-story section-tint section-bg-decor">
     <div class="container">
-      <SectionHeading
-        :number="careerStorySection.heading.number"
-        :title="careerStorySection.heading.title"
-        :lead="careerStorySection.heading.lead"
-      />
+      <div class="story-heading-area">
+        <div v-if="careerStorySection.decorativeLabel" class="story-bg-text" aria-hidden="true">{{ careerStorySection.decorativeLabel }}</div>
+
+        <SectionHeading
+          :number="careerStorySection.heading.number"
+          :title="careerStorySection.heading.title"
+          :lead="careerStorySection.heading.lead"
+        />
+      </div>
 
       <div class="story-inner">
         <div class="member-block" v-scroll-reveal-child="{ delay: 140, delaySp: 100 }">
@@ -88,6 +92,55 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
   --decor-2-right: -6%;
   --decor-2-size: 340px;
   --decor-2-opacity: 0.4;
+}
+
+/*
+ * 見出し背景の「CAREER →」は、Section 02（ProjectsSection.vue）の
+ * .heading-area / .work-bg-text / workMarquee と同じ視覚基準で実装する。
+ * SectionHeading.vue本体には手を入れず、外側に背景専用要素を重ねるだけにする。
+ */
+.story-heading-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.story-heading-area :deep(.section-heading) {
+  position: relative;
+  z-index: 1;
+}
+
+.story-bg-text {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  text-align: left;
+  font-size: clamp(72px, 11.4vw, 137px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: rgba(38, 126, 220, 0.11);
+  animation: storyBgMarquee 14s linear infinite;
+  will-change: transform;
+}
+
+@keyframes storyBgMarquee {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-bg-text {
+    animation: none;
+  }
 }
 
 .story-inner {
@@ -219,6 +272,11 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
 
 /* Tablet: 2カラムは維持し、写真・余白だけ縮小する */
 @media (max-width: 1024px) {
+  .story-bg-text {
+    font-size: clamp(58px, 13.2vw, 108px);
+    top: -18px;
+  }
+
   .story-inner {
     grid-template-columns: minmax(200px, 32%) 1fr;
     gap: var(--space-lg);
@@ -235,6 +293,12 @@ import PlaceholderImage from '../ui/PlaceholderImage.vue'
 
 /* SP: Career Story → 写真 → プロフィール → Timeline の完全な縦積み */
 @media (max-width: 767px) {
+  .story-bg-text {
+    font-size: clamp(56px, 19.4vw, 79px);
+    color: rgba(38, 126, 220, 0.14);
+    top: -5px;
+  }
+
   .story-inner {
     grid-template-columns: 1fr;
   }
