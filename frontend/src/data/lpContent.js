@@ -199,18 +199,22 @@ export const careerStorySection = {
   timeline: [
     {
       year: '1年目',
+      title: 'AIツールを活用',
       description: 'AIツールを活用しながらコーディングやタスクを習得。Web開発の基礎を実践的に身につける。',
     },
     {
       year: '3年目',
+      title: '設計にも携わる',
       description: '複数の案件を経験し、設計にも携わる。チームの中で信頼される存在に。',
     },
     {
       year: '3年目',
+      title: 'リーダーとして成長',
       description: 'フロントエンドのリーダーとしてメンバーをサポート。案件を越えた上流工程にも関わる。',
     },
     {
       year: '5年目〜',
+      title: '技術リーダーとして活躍',
       description: '新規サービス開発の技術リーダーとして活躍。技術選定や開発の推進にも関わるエンジニアへ。',
     },
   ],
@@ -244,6 +248,7 @@ export const careerSupportSection = {
     title: 'キャリアコンサルタントによる支援',
     lead: '現場のキャリアコンサルタントが、あなたの成長をキャリア面でサポートします。',
   },
+  decorativeLabel: 'SUPPORT',
   points: [
     '案件や成長に合わせた最適なご提案',
     'スキルアップや学習計画をサポート',
@@ -260,6 +265,7 @@ export const interviewSection = {
     title: '面接について',
     lead: '面接では、あなたのこれまでとこれからについてお話しします。',
   },
+  decorativeLabel: 'INTERVIEW',
   interviewerLabel: 'こんな人が面接します',
   interviewer: {
     name: '',
@@ -282,6 +288,7 @@ export const selectionFlowSection = {
     title: '選考フロー',
     lead: 'シンプルなステップで、選考を進めます。',
   },
+  decorativeLabel: 'SELECTION',
   durationNote: '選考期間の目安　5日以内　スピーディーに対応。',
   offerNote: '内定までのご連絡は　最短1週間',
   note: 'スピーディーに\n次のステップへ…',

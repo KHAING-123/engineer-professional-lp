@@ -54,6 +54,15 @@ onBeforeUnmount(() => {
           :title="interviewSection.heading.title"
           :lead="interviewSection.heading.lead"
         />
+
+        <!--
+          Title背景の英文字Decoration。SectionHeading（.section-heading.is-revealed）の直後に置き、
+          既存のReveal Stateを兄弟セレクタで参照してFade-in → Breathingを開始する。
+          外側：Fade-in（opacity transition）/ 内側：Breathing（opacity animation）
+        -->
+        <div v-if="interviewSection.decorativeLabel" class="interview-bg-text" aria-hidden="true">
+          <span class="interview-bg-text-inner">{{ interviewSection.decorativeLabel }}</span>
+        </div>
       </div>
 
       <p v-if="interviewSection.note" class="interview-note">
@@ -259,6 +268,127 @@ onBeforeUnmount(() => {
 
   .interview-image-hover:hover .interview-image {
     transform: none;
+  }
+}
+
+/*
+ * Section 07 Title背景の「INTERVIEW」（Blue寄り）。06のSUPPORTと同じ文字サイズで、右側のnoteへ大きく掛からない幅にしている。
+ * Section 02〜05の背景英文字（800 / Uppercase / letter-spacing / Blue系の薄い色）と同じTypographyを使い、
+ * Animationだけ横Marqueeではなく opacity のみの Soft Fade-in → Breathing にしている。
+ *   到達判定 … SectionHeading.vueの既存IntersectionObserverが付ける .section-heading.is-revealed を
+ *              兄弟セレクタで参照（JS / scroll listenerの追加なし）
+ *   外側 .interview-bg-text       … Fade-in（opacity transition 0.9s）
+ *   内側 .interview-bg-text-inner … Breathing（opacity animation 5.6s）。transformは一切使わない
+ */
+.panel-heading {
+  position: relative;
+}
+
+.panel-heading :deep(.section-heading) {
+  position: relative;
+  z-index: 1;
+}
+
+.interview-bg-text {
+  position: absolute;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  top: -0.42em;
+  font-size: clamp(44px, calc((min(100vw, 1280px) - 96px) * 0.06), 64px);
+  letter-spacing: 0.12em;
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-heading.is-revealed ~ .interview-bg-text {
+  opacity: 1;
+}
+
+.interview-bg-text-inner {
+  display: block;
+  background: linear-gradient(90deg, #2f6fed 0%, #4f9af7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0.1;
+}
+
+.section-heading.is-revealed ~ .interview-bg-text .interview-bg-text-inner {
+  animation: interviewBgBreath 5.6s ease-in-out 0.9s infinite;
+}
+
+/*
+ * 少し見える → はっきり（30%）→ ゆっくり薄くなり、ほぼ消えた状態を65〜80%（約0.8s）維持 → 再表示。
+ * 各区間はease-in-outで、急な点滅にならないようにしている。
+ */
+@keyframes interviewBgBreath {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  30% {
+    opacity: 0.17;
+  }
+  65%,
+  80% {
+    opacity: 0.015;
+  }
+}
+
+@media (max-width: 1024px) {
+  .interview-bg-text {
+    font-size: clamp(44px, calc((100vw - 96px) * 0.06), 58px);
+  }
+}
+
+/* SP：文字サイズ・Breathing幅を少し控えめにする */
+@media (max-width: 767px) {
+  .interview-bg-text {
+    top: -0.36em;
+    font-size: clamp(34px, calc((100vw - 48px) * 0.13), 58px);
+    letter-spacing: 0.1em;
+  }
+
+  .interview-bg-text-inner {
+    opacity: 0.08;
+  }
+
+  .section-heading.is-revealed ~ .interview-bg-text .interview-bg-text-inner {
+    animation-name: interviewBgBreathSp;
+  }
+
+  @keyframes interviewBgBreathSp {
+    0%,
+    100% {
+      opacity: 0.08;
+    }
+    30% {
+      opacity: 0.14;
+    }
+    65%,
+    80% {
+      opacity: 0.015;
+    }
+  }
+}
+
+/* Animationは止めるが、文字自体は薄い背景Decorationとして常に表示する */
+@media (prefers-reduced-motion: reduce) {
+  .interview-bg-text,
+  .section-heading.is-revealed ~ .interview-bg-text {
+    opacity: 1;
+    transition: none;
+  }
+
+  .interview-bg-text-inner,
+  .section-heading.is-revealed ~ .interview-bg-text .interview-bg-text-inner {
+    animation: none;
+    opacity: 0.12;
   }
 }
 </style>
