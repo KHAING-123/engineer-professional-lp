@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import { siteMeta, navLinks, headerCta } from '../../data/lpContent.js'
+import { navLinks, headerCta } from '../../data/lpContent.js'
+import PreaiLogo from '../ui/PreaiLogo.vue'
 
 const isMenuOpen = ref(false)
 
@@ -12,12 +13,29 @@ function closeMenu() {
 <template>
   <header class="app-header">
     <div class="app-header-inner">
-      <a href="#" class="logo">{{ siteMeta.logoText }}</a>
+      <a href="#" class="logo"><PreaiLogo /></a>
 
       <nav class="nav-links" :class="{ 'is-open': isMenuOpen }">
+        <!-- SP Drawer専用の装飾Bubble（CSSのみ・PC/Tabletでは非表示）。Navigation / CTAより後ろ、操作不可 -->
+        <span class="drawer-bubbles" aria-hidden="true">
+          <span class="drawer-bubble drawer-bubble-1"></span>
+          <span class="drawer-bubble drawer-bubble-2"></span>
+          <span class="drawer-bubble drawer-bubble-3"></span>
+          <span class="drawer-bubble drawer-bubble-4"></span>
+          <span class="drawer-bubble drawer-bubble-5"></span>
+          <span class="drawer-bubble drawer-bubble-6"></span>
+          <span class="drawer-bubble drawer-bubble-7"></span>
+        </span>
         <ul>
           <li v-for="link in navLinks" :key="link.label">
-            <a :href="link.href" @click="closeMenu">{{ link.label }}</a>
+            <!--
+              English Micro Label（装飾）→ Japanese Navigation（主役）→ Permanent Accent Line（.nav-ja::after）。
+              English Labelはaria-hiddenにし、Linkの読み上げは日本語のみにする。
+            -->
+            <a :href="link.href" @click="closeMenu">
+              <span v-if="link.decorativeLabel" class="nav-en" aria-hidden="true">{{ link.decorativeLabel }}</span>
+              <span class="nav-ja">{{ link.label }}</span>
+            </a>
           </li>
         </ul>
         <span class="nav-cta drawer-cta header-message">
@@ -123,32 +141,113 @@ function closeMenu() {
   gap: var(--space-md);
 }
 
+/*
+ * Navigation：通常状態で完成して見えるよう、
+ *   English Micro Label（小さく・薄いBlue）
+ *   Japanese Navigation（Dark Navy・主役）
+ *   Permanent Accent Line（日本語幅の約半分の細いCyan→Blue→Purple）+ 先端の小さなDot
+ * を常時表示する。Hover / Focusは「Lineが少し伸びる・色がわずかにBlue寄りになる」補助表現のみ。
+ * Link（a）全体がClick / Tap領域で、装飾はすべてa内のspan / 疑似要素なのでClickを妨げない。
+ */
 .nav-links a {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-primary-dark);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  vertical-align: top; /* inline-flexのbaseline揃えでliに余分な行高が出てHeaderが高くならないようにする */
   white-space: nowrap;
-  transition: transform 0.25s ease, color 0.25s ease, text-shadow 0.25s ease;
+  border-radius: 4px;
 }
 
-/* Hoverで軽く浮き上がる＋Accent Blueへ。キーボード操作時は:focus-visibleでも同じ状態にする */
-.nav-links a:hover,
-.nav-links a:focus-visible {
-  transform: translateY(-4px);
+.nav-en {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--color-accent);
-  text-shadow: 0 4px 10px rgba(16, 35, 63, 0.08);
+  opacity: 0.62;
+  transition: opacity 0.35s ease;
+}
+
+.nav-ja {
+  position: relative;
+  display: block;
+  padding-bottom: 7px; /* 日本語 → Accent Line の間隔5px + Line 2px */
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-primary-dark);
+  transition: color 0.35s ease;
+}
+
+/* Permanent Accent Line（通常状態から表示） */
+.nav-ja::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 48%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5cc9ff 0%, #2f6fed 55%, #8b78f0 100%);
+  opacity: 0.85;
+  transition: width 0.35s ease;
+}
+
+/* Accent Lineの先端の小さなDot（1つだけ） */
+.nav-ja::before {
+  content: '';
+  position: absolute;
+  left: calc(48% + 4px);
+  bottom: -1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #8b78f0;
+  opacity: 0.55;
+  transition: left 0.35s ease;
+}
+
+.nav-links a:hover .nav-en,
+.nav-links a:focus-visible .nav-en {
+  opacity: 0.88;
+}
+
+.nav-links a:hover .nav-ja,
+.nav-links a:focus-visible .nav-ja {
+  color: #1d4a8f;
+}
+
+.nav-links a:hover .nav-ja::after,
+.nav-links a:focus-visible .nav-ja::after {
+  width: 76%;
+}
+
+.nav-links a:hover .nav-ja::before,
+.nav-links a:focus-visible .nav-ja::before {
+  left: calc(76% + 4px);
+}
+
+/* Keyboard操作時のFocus表示（Default Outlineの代わりに、薄いBlueのOutlineを明示） */
+.nav-links a:focus-visible {
+  outline: 2px solid rgba(47, 111, 237, 0.45);
+  outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-links a {
+  .nav-en,
+  .nav-ja,
+  .nav-ja::after,
+  .nav-ja::before {
     transition: none;
   }
+}
 
-  .nav-links a:hover,
-  .nav-links a:focus-visible {
-    transform: none;
-  }
+/* SP Drawer専用のBubble Layer。PC / Tabletでは表示しない */
+.drawer-bubbles {
+  display: none;
 }
 
 /* .nav-cta.drawer-cta と2クラス指定にして、.nav-cta の display 指定より詳細度を上げる */
@@ -589,8 +688,13 @@ function closeMenu() {
     gap: var(--space-sm);
   }
 
-  .nav-links a {
+  .nav-ja {
     font-size: 13px;
+  }
+
+  .nav-en {
+    font-size: 9px;
+    letter-spacing: 0.12em;
   }
 
   .header-actions {
@@ -616,7 +720,20 @@ function closeMenu() {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-md);
-    background: var(--color-white);
+    /*
+     * Header（.app-header）と同じ色の並びを上端に敷き、その上へ下方向に濃くなる
+     * Blue-White / Purple-Whiteを重ねる。Drawer上端はHeader下端と同じ色になり、
+     * Header → Drawerが1枚のSoft Blue Canvasとしてつながって見える（Header自体の色は変更しない）。
+     */
+    background:
+      linear-gradient(
+        180deg,
+        rgba(246, 250, 255, 0) 0%,
+        rgba(246, 250, 255, 0.5) 28%,
+        rgba(247, 250, 255, 0.82) 62%,
+        rgba(249, 248, 255, 0.92) 100%
+      ),
+      linear-gradient(90deg, #f8f6fd 0%, #f8fbfe 25%, #eef7fe 50%, #c9e6fd 75%, #d7dffc 100%);
     padding: var(--space-md) var(--container-padding);
     transform: translateY(-8px);
     opacity: 0;
@@ -631,9 +748,214 @@ function closeMenu() {
     pointer-events: auto;
   }
 
+  /*
+   * SP Header（高さ64px）とDrawer（top:65px）の間の1pxの隙間から背後のHeroが線状に見えないよう、
+   * Drawer上端の外側1pxをHeaderと同じ色の並びで埋める（Drawer / Navigationの位置は変えない）。
+   */
+  .nav-links::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #f8f6fd 0%, #f8fbfe 25%, #eef7fe 50%, #c9e6fd 75%, #d7dffc 100%);
+    pointer-events: none;
+  }
+
   .nav-links ul {
     flex-direction: column;
     gap: var(--space-sm);
+  }
+
+  /*
+   * Drawer Bubble：Drawer Background → Bubble（z-index:0）→ Navigation / CTA（z-index:1）。
+   * pointer-events:noneでTap / Clickを一切妨げない。Navigationの空白（右側・CTA周辺・下部）に配置し、
+   * 色はLP共通のBlue / Cyan / Purple、塗り・Ringとも非常に薄くする。blur filterは使わない。
+   */
+  .drawer-bubbles {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .nav-links ul,
+  .nav-cta.drawer-cta {
+    position: relative;
+    z-index: 1;
+  }
+
+  .drawer-bubble {
+    --c: 80, 170, 255;
+
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.75) 0%, rgba(var(--c), 0.9) 62%, rgba(var(--c), 0.65) 100%);
+    opacity: 0.16;
+    animation: drawerBubbleFloat 14s ease-in-out infinite;
+  }
+
+  /* Ring Bubble：塗りなしの薄い輪郭のみ */
+  .drawer-bubble-3,
+  .drawer-bubble-7 {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(var(--c), 0.5);
+    opacity: 0.45;
+  }
+
+  /* Large：右上（Blue） */
+  .drawer-bubble-1 {
+    top: 3%;
+    right: -26px;
+    width: 104px;
+    height: 104px;
+    opacity: 0.12;
+    --dx1: -4px;
+    --dy1: -8px;
+    --dx2: 3px;
+    --dy2: -3px;
+    animation-duration: 17s;
+  }
+
+  /* Small：右上寄り（Cyan） */
+  .drawer-bubble-2 {
+    --c: 70, 210, 230;
+
+    top: 21%;
+    right: 26%;
+    width: 24px;
+    height: 24px;
+    opacity: 0.22;
+    --dx1: 4px;
+    --dy1: -8px;
+    --dx2: -3px;
+    --dy2: -3px;
+    animation-duration: 11s;
+    animation-delay: -3s;
+  }
+
+  /* Medium Ring：右中央（Purple） */
+  .drawer-bubble-3 {
+    --c: 150, 130, 245;
+
+    top: 36%;
+    right: 7%;
+    width: 58px;
+    height: 58px;
+    --dx1: -3px;
+    --dy1: -7px;
+    --dx2: 4px;
+    --dy2: -2px;
+    animation-duration: 15s;
+    animation-delay: -6s;
+  }
+
+  /* Small：CTA右側の空白（Blue） */
+  .drawer-bubble-4 {
+    top: 57%;
+    right: 20%;
+    width: 30px;
+    height: 30px;
+    opacity: 0.18;
+    --dx1: 3px;
+    --dy1: -6px;
+    --dx2: -4px;
+    --dy2: -4px;
+    animation-duration: 12s;
+    animation-delay: -8s;
+  }
+
+  /* Medium：CTA下（Cyan） */
+  .drawer-bubble-5 {
+    --c: 70, 210, 230;
+
+    top: 68%;
+    left: 42%;
+    width: 62px;
+    height: 62px;
+    opacity: 0.14;
+    --dx1: -4px;
+    --dy1: -8px;
+    --dx2: 3px;
+    --dy2: -3px;
+    animation-duration: 16s;
+    animation-delay: -2s;
+  }
+
+  /* Large：Drawer左下（Purple） */
+  .drawer-bubble-6 {
+    --c: 180, 150, 255;
+
+    bottom: 5%;
+    left: -30px;
+    width: 96px;
+    height: 96px;
+    opacity: 0.12;
+    --dx1: 4px;
+    --dy1: -8px;
+    --dx2: -3px;
+    --dy2: -3px;
+    animation-duration: 18s;
+    animation-delay: -10s;
+  }
+
+  /* Small Ring：Drawer右下（Blue） */
+  .drawer-bubble-7 {
+    bottom: 13%;
+    right: 12%;
+    width: 34px;
+    height: 34px;
+    --dx1: -3px;
+    --dy1: -7px;
+    --dx2: 3px;
+    --dy2: -3px;
+    animation-duration: 13s;
+    animation-delay: -5s;
+  }
+
+  /* 個別プロパティ translate でゆっくり漂わせる（transform / Drawerのtransitionとは独立） */
+  @keyframes drawerBubbleFloat {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    33% {
+      translate: var(--dx1) var(--dy1);
+    }
+    66% {
+      translate: var(--dx2) var(--dy2);
+    }
+  }
+
+  /* Drawerが閉じている間はBubble Animationを止め、SPの負荷を抑える */
+  .nav-links:not(.is-open) .drawer-bubble {
+    animation-play-state: paused;
+  }
+
+  /* SP Drawer：PCよりシンプルに（English小さめ・Line短め・Dotなし）。Tap領域はLink全体 */
+  .nav-links a {
+    padding-block: 4px;
+  }
+
+  .nav-en {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .nav-ja {
+    font-size: 15px;
+    padding-bottom: 6px;
+  }
+
+  .nav-ja::after {
+    width: 36%;
+  }
+
+  .nav-ja::before {
+    display: none;
   }
 
   .nav-cta.drawer-cta {
@@ -684,6 +1006,11 @@ function closeMenu() {
  * 同じ詳細度でも確実にこちらを上書きさせる。
  */
 @media (prefers-reduced-motion: reduce) {
+  /* SP Drawer Bubbleは静止した装飾背景として表示だけ残す */
+  .drawer-bubble {
+    animation: none;
+  }
+
   .nav-cta-text,
   .nav-cta-underline,
   .header-message::before,

@@ -45,11 +45,11 @@ export const siteMeta = {
 }
 
 export const navLinks = [
-  { label: '働く人', href: '#members' },
-  { label: '仕事背景', href: '#projects' },
-  { label: 'AIを使った働き方', href: '#ai-workflow' },
-  { label: 'キャリア', href: '#career-story' },
-  { label: '選考・面談', href: '#selection' },
+  { label: '働く人', href: '#members', decorativeLabel: 'PEOPLE' },
+  { label: '仕事背景', href: '#projects', decorativeLabel: 'PROJECTS' },
+  { label: 'AIを使った働き方', href: '#ai-workflow', decorativeLabel: 'AI WORK' },
+  { label: 'キャリア', href: '#career-story', decorativeLabel: 'CAREER' },
+  { label: '選考・面談', href: '#selection', decorativeLabel: 'SELECTION' },
 ]
 
 export const headerCta = {
@@ -203,7 +203,7 @@ export const careerStorySection = {
       description: 'AIツールを活用しながらコーディングやタスクを習得。Web開発の基礎を実践的に身につける。',
     },
     {
-      year: '3年目',
+      year: '2年目',
       title: '設計にも携わる',
       description: '複数の案件を経験し、設計にも携わる。チームの中で信頼される存在に。',
     },

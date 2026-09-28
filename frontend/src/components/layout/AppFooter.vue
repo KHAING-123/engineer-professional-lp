@@ -1,12 +1,13 @@
 <script setup>
 import { footerContent } from '../../data/lpContent.js'
+import PreaiLogo from '../ui/PreaiLogo.vue'
 </script>
 
 <template>
   <footer class="app-footer">
     <div class="footer-inner">
       <div class="footer-left">
-        <p class="footer-brand">{{ footerContent.logoText }}</p>
+        <p class="footer-brand"><PreaiLogo /></p>
 
         <nav class="footer-links">
           <a v-for="link in footerContent.links" :key="link.label" :href="link.href">{{ link.label }}</a>

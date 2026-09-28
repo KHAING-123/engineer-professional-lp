@@ -517,36 +517,169 @@ onBeforeUnmount(() => {
   color: #376c9c;
 }
 
-/* コメントは淡いBlue背景のBoxにする */
+/*
+ * Soft Premium Employee Voice：
+ *   White → Very Light Blue → Very Light Lavender のSoft Gradient Panel
+ *   + 角のSoft Light（左上・右下）+ 大きめのOpening / Closing Quote（装飾・aria-hidden）
+ *   + ごく弱いShadow + Panel端のSoft Ring / Small Bubble（疑似要素・1 Panel 2個まで）。
+ * Accent Line / Underlineは使わない。
+ * 3名のDesignは共通で、--voice-a / --voice-b（Blue / Cyan / Purple）だけをわずかに変える。
+ * Scroll Revealは親の .member-row（transform）が担当し、ここのFloatは個別プロパティ translate を
+ * 使うため競合しない。
+ */
 .member-comment {
+  --voice-a: 80, 170, 255;
+  --voice-b: 70, 210, 230;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: rgba(235, 247, 255, 0.65);
-  border-radius: 10px;
-  padding: 20px;
+  padding: 42px 34px 38px 36px;
+  border-radius: 24px;
+  border: 1px solid rgba(120, 150, 230, 0.1);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(var(--voice-a), 0.12) 0%, transparent 52%),
+    radial-gradient(circle at 100% 100%, rgba(var(--voice-b), 0.12) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 246, 255, 0.86) 55%, rgba(244, 240, 255, 0.8) 100%);
+  box-shadow:
+    0 12px 32px rgba(60, 100, 180, 0.07),
+    0 3px 10px rgba(90, 120, 200, 0.04);
+  animation: memberVoiceFloat 6s ease-in-out infinite;
 }
 
+.member-row:nth-child(2) .member-comment {
+  --voice-a: 80, 170, 255;
+  --voice-b: 150, 130, 245;
+
+  animation-delay: -2s;
+}
+
+.member-row:nth-child(3) .member-comment {
+  --voice-a: 70, 210, 230;
+  --voice-b: 150, 130, 245;
+
+  animation-delay: -4s;
+}
+
+@keyframes memberVoiceFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+/* Soft Ring（::before）と Small Bubble（::after）。Textより後ろ・操作不可 */
+.member-comment::before,
+.member-comment::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Y.M：右上にSoft Blue Ring + 小さなCyan Bubble */
+.member-comment::before {
+  top: -20px;
+  right: -16px;
+  width: 62px;
+  height: 62px;
+  border: 1px solid rgba(var(--voice-a), 0.3);
+  background: rgba(var(--voice-a), 0.04);
+}
+
+.member-comment::after {
+  top: 24px;
+  right: 54px;
+  width: 8px;
+  height: 8px;
+  background: rgba(var(--voice-b), 0.3);
+}
+
+/* K.H：左下にSoft Purple Ring + 左上（Quoteの右）に小さなPurple Bubble */
+.member-row:nth-child(2) .member-comment::before {
+  top: auto;
+  right: auto;
+  bottom: -18px;
+  left: -14px;
+  width: 52px;
+  height: 52px;
+  border-color: rgba(var(--voice-b), 0.3);
+  background: rgba(var(--voice-b), 0.04);
+}
+
+.member-row:nth-child(2) .member-comment::after {
+  top: 18px;
+  right: auto;
+  left: 66px;
+  width: 10px;
+  height: 10px;
+  background: rgba(var(--voice-b), 0.26);
+}
+
+/* T.S：右側にSoft Purple Ring + 下側に小さなCyan Bubble */
+.member-row:nth-child(3) .member-comment::before {
+  top: 34%;
+  right: -28px;
+  width: 66px;
+  height: 66px;
+  border-color: rgba(var(--voice-b), 0.3);
+  background: rgba(var(--voice-b), 0.04);
+}
+
+.member-row:nth-child(3) .member-comment::after {
+  top: auto;
+  right: auto;
+  bottom: 16px;
+  left: 30%;
+  width: 7px;
+  height: 7px;
+  background: rgba(var(--voice-a), 0.32);
+}
+
+/* Quote：大きめ・薄めの装飾。Messageより目立たせず、本文とは重ならない位置に絶対配置 */
 .member-comment .quote {
-  font-size: 30px;
+  position: absolute;
+  z-index: 0;
   font-weight: 800;
   line-height: 1;
-  color: var(--color-accent);
+  pointer-events: none;
 }
 
 .member-comment .quote-open {
-  align-self: flex-start;
+  top: 10px;
+  left: 18px;
+  font-size: 54px;
+  color: rgb(var(--voice-a));
+  opacity: 0.5;
 }
 
 .member-comment .quote-close {
-  align-self: flex-end;
+  right: 20px;
+  bottom: -12px;
+  font-size: 44px;
+  color: rgb(var(--voice-b));
+  opacity: 0.42;
 }
 
 .member-comment p {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.75;
   color: var(--color-primary-dark);
-  margin-block: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-comment {
+    animation: none;
+  }
 }
 
 /* Tablet: 写真+社員情報を2列、コメントは下に全幅で回す */
@@ -651,6 +784,29 @@ onBeforeUnmount(() => {
 
   .member-comment {
     align-items: center;
+    padding: 34px 22px 30px;
+    border-radius: 20px;
+  }
+
+  .member-comment p {
+    font-size: 15px;
+  }
+
+  .member-comment .quote-open {
+    top: 8px;
+    left: 14px;
+    font-size: 38px;
+  }
+
+  .member-comment .quote-close {
+    right: 14px;
+    bottom: -9px;
+    font-size: 32px;
+  }
+
+  /* SPはDecorationを1 Panel 1個（Ringのみ）にして読みやすさを優先 */
+  .member-comment::after {
+    display: none;
   }
 }
 </style>

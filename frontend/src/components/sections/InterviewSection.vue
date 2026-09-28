@@ -138,7 +138,39 @@ onBeforeUnmount(() => {
   letter-spacing: 0.06em;
   white-space: nowrap;
   transform: rotate(-5deg);
-  box-shadow: 0 8px 24px rgba(30, 80, 130, 0.06);
+  /*
+   * Soft Floating Card：黒ではなくLPのBlue系で、下側中心の柔らかいShadow + 上辺のごく薄いHighlight。
+   * reduced-motion時もこのShadowが残り、「少し浮いているCard」として見える。
+   */
+  box-shadow:
+    0 10px 24px rgba(60, 100, 200, 0.1),
+    0 3px 8px rgba(90, 120, 220, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  /*
+   * Floatはtransformではなく個別プロパティ translate で動かす。
+   * 既存の rotate(-5deg)（transform）と、Panel全体のScroll Reveal（親要素のtransform）の
+   * どちらにも干渉しない。Layout位置（grid上の配置）も変わらない。
+   */
+  animation: interviewNoteFloat 5s ease-in-out infinite;
+}
+
+/* 浮いた時（50%）はShadowをわずかに下へ・柔らかく広げる。変化量は非常に小さくしている */
+@keyframes interviewNoteFloat {
+  0%,
+  100% {
+    translate: 0 0;
+    box-shadow:
+      0 10px 24px rgba(60, 100, 200, 0.1),
+      0 3px 8px rgba(90, 120, 220, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+  50% {
+    translate: 0 -4px;
+    box-shadow:
+      0 16px 34px rgba(60, 100, 200, 0.09),
+      0 5px 12px rgba(90, 120, 220, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
 }
 
 .note-line {
@@ -244,6 +276,30 @@ onBeforeUnmount(() => {
   .interview-note {
     font-size: 12px;
     padding: 8px 14px;
+    box-shadow:
+      0 8px 18px rgba(60, 100, 200, 0.09),
+      0 2px 6px rgba(90, 120, 220, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    animation-name: interviewNoteFloatSp;
+  }
+
+  /* SP：移動量・Shadowを少し弱くする */
+  @keyframes interviewNoteFloatSp {
+    0%,
+    100% {
+      translate: 0 0;
+      box-shadow:
+        0 8px 18px rgba(60, 100, 200, 0.09),
+        0 2px 6px rgba(90, 120, 220, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+    50% {
+      translate: 0 -2.5px;
+      box-shadow:
+        0 12px 24px rgba(60, 100, 200, 0.08),
+        0 3px 9px rgba(90, 120, 220, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
   }
 
   .interview-image-reveal {
@@ -252,6 +308,11 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Floatだけ止め、静止時のSoft Shadowは残す */
+  .interview-note {
+    animation: none;
+  }
+
   .interview-image-reveal {
     opacity: 1;
     transform: none;

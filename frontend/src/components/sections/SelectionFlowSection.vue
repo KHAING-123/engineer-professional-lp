@@ -36,8 +36,6 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
         <ol class="flow-list">
           <li v-for="(step, index) in selectionFlowSection.steps" :key="step.step" class="flow-item">
             <div class="flow-content">
-              <span class="flow-number">{{ step.step }}</span>
-
               <div class="flow-icon" aria-hidden="true">
                 <img v-if="step.icon" :src="step.icon" :alt="step.title" />
                 <template v-else>
@@ -66,6 +64,7 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
                 </template>
               </div>
 
+              <span class="flow-number">{{ step.step }}</span>
               <h3>{{ step.title }}</h3>
               <p class="flow-description">{{ step.description }}</p>
               <span class="flow-duration" :class="{ 'is-final': index === selectionFlowSection.steps.length - 1 }">
@@ -73,7 +72,30 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
               </span>
             </div>
 
-            <span v-if="index < selectionFlowSection.steps.length - 1" class="flow-arrow" aria-hidden="true"></span>
+            <!--
+              Step間Connector：Dotted Line + 中央のWhite Circle + Blue→Purple Arrow。
+              PCはIcon Circle同士をつなぐ横向き、900px以下は縦向き（Arrowは↓へ回転）。
+            -->
+            <span v-if="index < selectionFlowSection.steps.length - 1" class="flow-connector" aria-hidden="true">
+              <span class="flow-connector-line"></span>
+              <span class="flow-connector-circle">
+                <svg class="flow-connector-arrow" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <linearGradient :id="`selectionArrowGradient${index}`" gradientUnits="userSpaceOnUse" x1="5" y1="12" x2="19" y2="12">
+                      <stop offset="0%" stop-color="#2f80ed" />
+                      <stop offset="100%" stop-color="#7b6cf6" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5"
+                    :stroke="`url(#selectionArrowGradient${index})`"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </span>
           </li>
         </ol>
 
@@ -186,95 +208,254 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
   line-height: 1.5;
 }
 
-/* 5Stepの小さく低いFlow（カード廃止、矢印もコンパクトに、Step同士を近づける） */
+/*
+ * 5Step Selection Journey（Cardで囲まず、背景の上に直接配置）
+ *   Icon Circle → Number → Title → Description → Period Pill
+ *   Step間：Dotted Line + White Circular Arrow（.flow-connector）
+ *
+ * PC/Tabletは各Stepを均等幅（flex: 1 1 0）にし、Connectorを「自Stepのicon右端〜次Stepのicon左端」
+ * へ絶対配置する（均等幅なので次のicon中心はちょうど100%右）。900px以下は縦のJourneyに切り替える。
+ * Section全体のScroll Reveal（App.vueのv-scroll-reveal = section rootのtransform）とは別要素で、
+ * 今回のFloat / Arrowの動きは個別プロパティ translate を使うため、既存transformとは競合しない。
+ */
 .flow-list {
+  --flow-icon: 72px;
+  --flow-img: 46px;
+  --flow-arrow-circle: 40px;
+
   grid-area: flow;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0;
 }
 
 .flow-item {
-  display: flex;
-  align-items: center;
-  flex: 0 1 146px;
+  position: relative;
+  flex: 1 1 0;
   min-width: 0;
 }
 
 .flow-content {
-  flex: 1;
+  position: relative;
+  z-index: 1;
   min-width: 0;
   text-align: center;
 }
 
-.flow-number {
-  display: block;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--color-accent);
-  line-height: 1;
-  margin-bottom: 3px;
-}
-
+/* Icon Circle：White + ごく薄いLight BlueのHalo、1pxの薄いBlue border、弱いBlue Shadow */
 .flow-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: var(--flow-icon);
+  height: var(--flow-icon);
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #ffffff 48%, rgba(233, 243, 255, 0.95) 100%);
+  border: 1px solid rgba(90, 165, 240, 0.16);
+  box-shadow: 0 8px 24px rgba(60, 110, 220, 0.07);
   color: var(--color-accent);
-  margin-bottom: 5px;
+  animation: flowIconFloat 5.2s ease-in-out infinite;
+}
+
+/* 参考画像のIcon周りの小さなDot（Light Blue / Light Purpleを1つずつ） */
+.flow-icon::before,
+.flow-icon::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.flow-icon::before {
+  top: 4%;
+  right: 4%;
+  width: 6px;
+  height: 6px;
+  background: rgba(92, 201, 255, 0.6);
+}
+
+.flow-icon::after {
+  top: 42%;
+  left: -3px;
+  width: 5px;
+  height: 5px;
+  background: rgba(150, 130, 245, 0.5);
+}
+
+.flow-item:nth-child(2) .flow-icon {
+  animation-delay: -1s;
+}
+
+.flow-item:nth-child(3) .flow-icon {
+  animation-delay: -2s;
+}
+
+.flow-item:nth-child(4) .flow-icon {
+  animation-delay: -3s;
+}
+
+.flow-item:nth-child(5) .flow-icon {
+  animation-delay: -4s;
+}
+
+@keyframes flowIconFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
 }
 
 .flow-icon svg,
 .flow-icon img {
-  width: 30px;
-  height: 30px;
+  width: var(--flow-img);
+  height: var(--flow-img);
   object-fit: contain;
 }
 
+.flow-number {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
 .flow-content h3 {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--color-primary-dark);
-  line-height: 1.3;
+  line-height: 1.35;
   margin-bottom: 4px;
   white-space: nowrap;
 }
 
 .flow-description {
-  font-size: 11.5px;
-  line-height: 1.4;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.6;
   color: var(--color-text-muted);
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
+/* Period Pill：Very Light Blue + Blue Text（Border / Shadowなし） */
 .flow-duration {
+  position: relative;
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1.5;
   color: var(--color-accent);
-  background: #e7f2ff;
-  border-radius: 4px;
-  padding: 2px 8px;
+  background: #e9f3ff;
+  border-radius: 999px;
+  padding: 4px 14px;
   white-space: nowrap;
 }
 
+/* 05「最短1週間」だけBlue → Purple Gradient Pill + 左右の小さなAccent Line */
 .flow-duration.is-final {
   color: var(--color-white);
-  background: var(--color-accent);
+  background: linear-gradient(90deg, #2f80ed 0%, #5b6cff 55%, #8b6cf6 100%);
+  box-shadow: 0 6px 16px rgba(70, 90, 230, 0.16);
 }
 
-/* Step間の矢印。Stepの中央付近に来るよう、余白を作らず小さく配置する */
-.flow-arrow {
+.flow-duration.is-final::before,
+.flow-duration.is-final::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.flow-duration.is-final::before {
+  left: -11px;
+  background: #4f8df0;
+  transform: rotate(40deg);
+}
+
+.flow-duration.is-final::after {
+  right: -11px;
+  background: #8b6cf6;
+  transform: rotate(-40deg);
+}
+
+/* Connector：icon右端〜次Stepのicon左端。中央にWhite Circle */
+.flow-connector {
+  position: absolute;
+  top: calc(var(--flow-icon) / 2);
+  left: calc(50% + var(--flow-icon) / 2);
+  width: calc(100% - var(--flow-icon));
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+/* 細いDotted Line：Blue → Light Purpleの薄いGradientをdotのmaskで切り抜く */
+.flow-connector-line {
+  position: absolute;
+  top: -2px;
+  left: 3px;
+  right: 3px;
+  height: 4px;
+  background: linear-gradient(90deg, #6fa8f2, #9b8cf3);
+  -webkit-mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 0 50% / 6px 4px repeat-x;
+  mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 0 50% / 6px 4px repeat-x;
+  opacity: 0.55;
+  animation: flowConnectorPulse 5s ease-in-out infinite;
+}
+
+@keyframes flowConnectorPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.flow-connector-circle {
+  position: relative;
   flex-shrink: 0;
-  width: 12px;
-  font-size: 13px;
-  color: #8bbcff;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--flow-arrow-circle);
+  height: var(--flow-arrow-circle);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(110, 130, 240, 0.16);
+  box-shadow: 0 6px 18px rgba(60, 110, 220, 0.12);
 }
 
-.flow-arrow::after {
-  content: '\2192';
+/* Arrowは「次へ」方向へごく小さく動かす（PC: 右へ3px / 縦Journey: 下へ3px） */
+.flow-connector-arrow {
+  --flow-arrow-shift: 3px 0;
+
+  width: 18px;
+  height: 18px;
+  animation: flowArrowNudge 3s ease-in-out infinite;
+}
+
+@keyframes flowArrowNudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: var(--flow-arrow-shift);
+  }
 }
 
 /*
@@ -423,8 +604,23 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
     row-gap: var(--space-md);
   }
 
-  .flow-item {
-    flex-basis: 108px;
+  .flow-list {
+    --flow-icon: 64px;
+    --flow-img: 42px;
+    --flow-arrow-circle: 34px;
+  }
+
+  .flow-content h3 {
+    font-size: 15px;
+  }
+
+  .flow-description {
+    font-size: 12px;
+  }
+
+  .flow-connector-arrow {
+    width: 16px;
+    height: 16px;
   }
 
   .summary-note {
@@ -438,11 +634,6 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
 
 /* 768px: 5Stepが窮屈な場合は折り返しを許可し、読みやすさを優先する */
 @media (max-width: 768px) {
-  .flow-list {
-    flex-wrap: wrap;
-    row-gap: var(--space-sm);
-  }
-
   .flow-heading {
     transform: translateY(-10px);
   }
@@ -464,25 +655,6 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
     transform: none;
   }
 
-  .flow-list {
-    flex-direction: column;
-    align-items: center;
-    flex-wrap: nowrap;
-  }
-
-  .flow-item {
-    flex-direction: column;
-    flex-basis: auto;
-    width: 100%;
-    max-width: 220px;
-  }
-
-  .flow-arrow {
-    width: auto;
-    transform: rotate(90deg);
-    margin-block: 2px;
-  }
-
   .summary-top {
     flex-wrap: wrap;
   }
@@ -492,6 +664,87 @@ const offerParts = computed(() => selectionFlowSection.offerNote.split('　'))
     text-align: left;
     transform: rotate(-1deg);
     margin-left: 38px;
+  }
+}
+
+/*
+ * 900px以下：Flow列の幅（768pxで約440px）では5Stepを横に並べるとTitleが収まらないため、
+ * SPと同じVertical Selection Journeyに切り替える。Connectorは縦のDotted Line + ↓Arrow。
+ */
+@media (max-width: 900px) {
+  .flow-list {
+    --flow-icon: 60px;
+    --flow-img: 40px;
+    --flow-arrow-circle: 36px;
+
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-item {
+    flex: none;
+    width: 100%;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-content {
+    width: 100%;
+  }
+
+  .flow-icon {
+    margin-bottom: 8px;
+  }
+
+  .flow-number {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  .flow-description {
+    margin-bottom: 6px;
+  }
+
+  .flow-connector {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: var(--flow-arrow-circle);
+    height: 52px;
+    margin-block: 4px;
+  }
+
+  .flow-connector-line {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 4px;
+    height: auto;
+    margin-left: -2px;
+    background: linear-gradient(180deg, #6fa8f2, #9b8cf3);
+    -webkit-mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 50% 0 / 4px 6px repeat-y;
+    mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 50% 0 / 4px 6px repeat-y;
+  }
+
+  /* ↓方向：SVGは同じものを個別プロパティ rotate で90°回転（Nudgeのtranslateとは別プロパティ） */
+  .flow-connector-arrow {
+    --flow-arrow-shift: 0 2px;
+
+    width: 16px;
+    height: 16px;
+    rotate: 90deg;
+  }
+}
+
+/* 今回追加したMotion（Icon Float / Connector / Arrow）だけを停止。すべて通常表示のまま */
+@media (prefers-reduced-motion: reduce) {
+  .flow-icon,
+  .flow-connector-line,
+  .flow-connector-arrow {
+    animation: none;
   }
 }
 

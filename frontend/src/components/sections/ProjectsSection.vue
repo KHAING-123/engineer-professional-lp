@@ -480,18 +480,23 @@ const noteLines = (category) => {
   }
 }
 
-/* 3段の仕事Rowをまとめて1つの緩やかな連続Visualにする（独立カードにしない） */
+/*
+ * Soft Premium Project Showcase：3つの仕事を、それぞれSoft Horizontal Project Cardとして並べる。
+ *   Icon（Gradient Circle + Thin Ring）| Title / Description / Tags | Project Image | Soft Message Blob
+ * Card自体は既存の .category-row（v-scroll-reveal-child でRowごとにFade-up）をそのまま使う。
+ * 追加したMotion（Icon Float / Blob Float）は個別プロパティ translate / scale を別要素に付けるため、
+ * RowのReveal（transform）や既存のnote傾き・Hover（transform）とは競合しない。
+ */
 .category-table {
   margin-top: var(--space-lg);
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(27, 58, 107, 0.1);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
 .category-row {
   display: grid;
-  grid-template-columns: 80px minmax(300px, 1fr) minmax(230px, 280px) 190px;
+  grid-template-columns: 92px minmax(300px, 1fr) minmax(250px, 300px) 200px;
   grid-template-areas:
     'icon title image note'
     'icon desc  image note'
@@ -499,25 +504,79 @@ const noteLines = (category) => {
   column-gap: var(--space-md);
   row-gap: 4px;
   align-items: center;
-  padding: 28px 28px;
-  border-bottom: 1px solid rgba(27, 58, 107, 0.08);
+  padding: 28px 32px;
+  border-radius: 28px;
+  border: 1px solid rgba(100, 150, 220, 0.08);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.97) 0%, rgba(247, 251, 255, 0.95) 55%, rgba(249, 247, 255, 0.9) 100%);
+  box-shadow: 0 12px 36px rgba(60, 100, 170, 0.055);
 }
 
-.category-row:last-child {
-  border-bottom: none;
-}
-
+/* Gradient Icon Circle（Icon SVG自体は既存のまま白） */
 .category-icon {
+  --icon-ring: 40, 199, 223;
+
   grid-area: icon;
   align-self: center;
+  justify-self: center;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 78px;
   height: 78px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #05b9df 0%, #0879e6 100%);
+  background: linear-gradient(145deg, #28c7df 0%, #168cf0 100%);
+  box-shadow: 0 10px 22px rgba(22, 140, 240, 0.16);
   color: var(--color-white);
+  animation: projectIconFloat 6s ease-in-out infinite;
+}
+
+/* Mobile：Blue → Light Purple / Data・AI：Cyan → Blue（同じDesign Systemで色味だけ変える） */
+.category-icon-mobile {
+  --icon-ring: 130, 120, 245;
+
+  background: linear-gradient(145deg, #8b8cf6 0%, #2f6fed 100%);
+  box-shadow: 0 10px 22px rgba(70, 90, 230, 0.16);
+  animation-delay: -2s;
+}
+
+.category-icon-data {
+  --icon-ring: 70, 210, 230;
+
+  background: linear-gradient(145deg, #22d0e0 0%, #1a9ae8 100%);
+  animation-delay: -4s;
+}
+
+/* 外側の薄いRing + 小さなBubble 1個 */
+.category-icon::before,
+.category-icon::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.category-icon::before {
+  inset: -8px;
+  border: 1.5px solid rgba(var(--icon-ring), 0.25);
+}
+
+.category-icon::after {
+  top: -6px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  background: rgba(var(--icon-ring), 0.45);
+}
+
+@keyframes projectIconFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
 }
 
 .category-icon svg {
@@ -527,22 +586,24 @@ const noteLines = (category) => {
 
 .category-title {
   grid-area: title;
-  font-size: 21px;
+  margin-bottom: 10px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--color-primary-dark);
 }
 
 .category-description {
   grid-area: desc;
-  font-size: 13.5px;
-  line-height: 1.55;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
   color: var(--color-text-muted);
 }
 
 .category-tags {
   grid-area: tags;
-  margin-top: 2px;
-  gap: 5px;
+  gap: 6px;
 }
 
 .category-tags :deep(li) {
@@ -550,26 +611,23 @@ const noteLines = (category) => {
   color: #315f91;
   font-size: 11px;
   font-weight: 600;
-  border-radius: 5px;
-  padding: 2px 7px;
+  border-radius: 6px;
+  padding: 2px 8px;
 }
 
 /*
- * 画像コンテナ：左上・右下が斜めに切れたParallelogram型に加工する。
- * サイズ（width/height）は既存のまま維持し、aspect-ratioは
- * width/heightが明示されている限り無効（サイズへの影響なし）。
+ * 画像：斜めClip（左上・右下）は内側のimgへ付け、外側にごく薄いBlueのdrop-shadowを付ける
+ * （clip-path要素にbox-shadowは描画されないため、Shadowは外側で持たせる）。
+ * 以前よりわずかに大きく（高さ120px → 132px）、Clip角度も8% → 6%へ少し緩める。
+ * 既存のHover（translateY -6px）はそのまま維持。
  */
 .category-image {
   grid-area: image;
   align-self: center;
   position: relative;
   width: 100%;
-  height: 120px;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: 18px;
-  clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
-  box-shadow: 0 18px 40px rgba(32, 72, 150, 0.12);
+  height: 132px;
+  filter: drop-shadow(0 8px 18px rgba(60, 110, 190, 0.1));
   transition: transform 0.35s ease;
 }
 
@@ -589,7 +647,8 @@ const noteLines = (category) => {
 .category-image :deep(.placeholder-image-real) {
   width: 100%;
   height: 100%;
-  border-radius: 6px;
+  border-radius: 18px;
+  clip-path: polygon(6% 0%, 100% 0%, 94% 100%, 0% 100%);
 }
 
 .category-image :deep(.placeholder-image-real) {
@@ -597,10 +656,10 @@ const noteLines = (category) => {
 }
 
 /*
- * note：テキスト＋背景円を「1つのwrapper」としてまとめてrotateすることで、
- * 参考画像のように手書きメモを少し斜めに置いたような一体感を出す。
- * 円は.note-wrap::beforeで作成し（画像不使用）、wrapperごと傾けるためcircle自体には
- * 個別のrotateを持たせない。3note共通のサイズ・角度・文字スタイルにし、円の色だけを変える。
+ * note：テキスト＋背景Blobを「1つのwrapper」としてまとめてrotateし、
+ * 手書きメモを少し斜めに置いたような一体感を出す（傾き・文字スタイルは既存のまま）。
+ * 背景は正円ではなくSoft Organic Blob（.note-wrap::before）。Blobのゆっくりした動きは
+ * 個別プロパティ translate / scale で行い、centering用のtransformとは独立させている。
  */
 .note-wrap {
   grid-area: note;
@@ -626,21 +685,71 @@ const noteLines = (category) => {
   position: absolute;
   z-index: 0;
   top: 50%;
-  right: 0;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  background: rgba(185, 216, 255, 0.35);
+  right: -6px;
+  width: 186px;
+  height: 162px;
+  border-radius: 55% 45% 52% 48% / 48% 58% 42% 52%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
+    rgba(218, 241, 255, 0.75);
   transform: translateY(-50%);
   pointer-events: none;
+  animation: projectBlobFloat 10s ease-in-out infinite;
 }
 
 .note-wrap-mobile::before {
-  background: rgba(207, 196, 255, 0.32);
+  border-radius: 48% 52% 45% 55% / 55% 45% 55% 45%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
+    rgba(235, 226, 255, 0.72);
+  animation-delay: -3.5s;
 }
 
 .note-wrap-data::before {
-  background: rgba(180, 225, 255, 0.35);
+  border-radius: 52% 48% 56% 44% / 46% 54% 46% 54%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
+    rgba(215, 244, 250, 0.74);
+  animation-delay: -7s;
+}
+
+@keyframes projectBlobFloat {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1;
+  }
+  50% {
+    translate: 0 -3px;
+    scale: 1.015;
+  }
+}
+
+/* Blob周りのSmall Bubble 2個（::after本体 + box-shadowで2個目）。Textより後ろ・操作不可 */
+.note-wrap::after {
+  --blob-bubble: 70, 210, 230;
+
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 6px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(var(--blob-bubble), 0.24);
+  box-shadow: -150px 128px 0 -2px rgba(80, 170, 255, 0.18);
+  pointer-events: none;
+}
+
+.note-wrap-mobile::after {
+  --blob-bubble: 150, 130, 245;
+}
+
+.note-wrap-data::after {
+  --blob-bubble: 80, 170, 255;
+
+  box-shadow: -150px 128px 0 -2px rgba(70, 210, 230, 0.2);
 }
 
 .category-note {
@@ -680,6 +789,12 @@ const noteLines = (category) => {
   .note-wrap:hover {
     transform: rotate(-5deg);
   }
+
+  /* 今回追加したIcon Float / Blob Floatを停止（要素はすべて通常表示のまま） */
+  .category-icon,
+  .note-wrap::before {
+    animation: none;
+  }
 }
 
 /* Tablet（1024px）: 4ゾーン構成は維持し、サイズだけ縮小する */
@@ -691,9 +806,10 @@ const noteLines = (category) => {
   }
 
   .category-row {
-    grid-template-columns: 64px 1fr 210px 160px;
+    grid-template-columns: 76px 1fr 210px 160px;
     column-gap: var(--space-sm);
-    padding: 22px var(--space-lg);
+    padding: 24px 28px;
+    border-radius: 26px;
   }
 
   .category-icon {
@@ -706,8 +822,12 @@ const noteLines = (category) => {
     height: 28px;
   }
 
+  .category-title {
+    font-size: 20px;
+  }
+
   .category-image {
-    height: 108px;
+    height: 116px;
   }
 
   .note-wrap {
@@ -715,8 +835,12 @@ const noteLines = (category) => {
   }
 
   .note-wrap::before {
-    width: 140px;
-    height: 140px;
+    width: 154px;
+    height: 136px;
+  }
+
+  .note-wrap::after {
+    box-shadow: -124px 108px 0 -2px rgba(80, 170, 255, 0.18);
   }
 
   .category-note {
@@ -755,7 +879,7 @@ const noteLines = (category) => {
   }
 
   .category-image {
-    height: 124px;
+    height: 132px;
   }
 
   .note-wrap {
@@ -763,8 +887,12 @@ const noteLines = (category) => {
   }
 
   .note-wrap::before {
-    width: 120px;
+    width: 140px;
     height: 120px;
+  }
+
+  .note-wrap::after {
+    box-shadow: none;
   }
 
   .category-note {
@@ -814,13 +942,26 @@ const noteLines = (category) => {
       'image image'
       'note note';
     row-gap: var(--space-sm);
-    padding: var(--space-md);
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .category-table {
+    gap: 16px;
   }
 
   .category-icon {
     width: 48px;
     height: 48px;
     align-self: center;
+  }
+
+  .category-icon::before {
+    inset: -6px;
+  }
+
+  .category-icon::after {
+    display: none;
   }
 
   .category-icon svg {
@@ -830,21 +971,39 @@ const noteLines = (category) => {
 
   .category-title {
     align-self: center;
+    margin-bottom: 0;
+    font-size: 19px;
+  }
+
+  .category-description {
+    margin-bottom: 0;
   }
 
   .category-image {
     height: 204px;
   }
 
+  /* SPのBlobは巨大な円にせず、少し横長のコンパクトなOrganic Shapeにする */
   .note-wrap {
     justify-self: center;
-    min-height: 200px;
-    padding-right: 8px;
+    justify-content: center;
+    width: min(82%, 260px);
+    min-height: 140px;
+    padding-right: 0;
   }
 
   .note-wrap::before {
-    width: 200px;
-    height: 200px;
+    right: auto;
+    left: 50%;
+    width: 100%;
+    height: 132px;
+    transform: translate(-50%, -50%);
+  }
+
+  .note-wrap::after {
+    top: 10px;
+    right: 14px;
+    box-shadow: none;
   }
 
   .category-note {
