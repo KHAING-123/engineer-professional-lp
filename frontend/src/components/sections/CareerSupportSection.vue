@@ -2,7 +2,6 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { careerSupportSection } from '../../data/lpContent.js'
 import SectionHeading from '../ui/SectionHeading.vue'
-import CheckList from '../ui/CheckList.vue'
 import PlaceholderImage from '../ui/PlaceholderImage.vue'
 
 /*
@@ -56,12 +55,38 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+    <!--
+      Premium Career Support：左 Consultant Visual | 右 Soft Glass Support Panel ×4。
+      transformの担当を分ける：
+        .support-visual（装飾Glowの基準）> .support-visual-frame（Float：translate）> 画像
+        .support-item（Reveal：既存 v-scroll-reveal-child）> .support-item-inner（Float：translate）
+    -->
     <div class="support-body">
-      <div class="support-photo">
-        <PlaceholderImage :src="careerSupportSection.image" label="キャリアコンサルタント" ratio="4 / 3" />
+      <div class="support-visual">
+        <span class="support-visual-glow support-visual-glow-1" aria-hidden="true"></span>
+        <span class="support-visual-glow support-visual-glow-2" aria-hidden="true"></span>
+        <div class="support-visual-frame">
+          <PlaceholderImage :src="careerSupportSection.image" label="キャリアコンサルタント" ratio="1086 / 1159" />
+        </div>
       </div>
 
-      <CheckList class="support-checklist" :items="careerSupportSection.points" />
+      <ul class="support-list">
+        <li
+          v-for="(point, index) in careerSupportSection.points"
+          :key="point"
+          class="support-item"
+          v-scroll-reveal-child="{ delay: 120 + index * 100, delaySp: 80 + index * 80 }"
+        >
+          <div class="support-item-inner">
+            <span class="support-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 12.5l4 4 8-9" />
+              </svg>
+            </span>
+            <span class="support-text">{{ point }}</span>
+          </div>
+        </li>
+      </ul>
     </div>
 
     <!--
@@ -155,59 +180,316 @@ onBeforeUnmount(() => {
   font-size: 21px;
 }
 
+/*
+ * Premium Career Support：Consultant Visual（約40%）| Soft Glass Support Panel ×4（約60%）。
+ * Section 06は共通Band（App.vue）の片側パネルのため、その幅の中で2カラムを組む。
+ * 1024px以下はパネル幅が狭くなるため縦並び（Visual → Panel）に切り替える。
+ */
 .support-body {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  align-items: center;
+  gap: 22px;
+}
+
+/* Consultant Visual：大きめの角丸・薄いBlue border・Blue系Soft Shadow + 背後の淡いGlow 2個 */
+.support-visual {
+  position: relative;
+}
+
+.support-visual-glow {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.support-visual-glow-1 {
+  top: -22px;
+  right: -26px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(170, 150, 255, 0.28) 0%, rgba(170, 150, 255, 0.1) 55%, transparent 72%);
+}
+
+.support-visual-glow-2 {
+  bottom: -26px;
+  left: -28px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(110, 175, 255, 0.26) 0%, rgba(110, 175, 255, 0.1) 55%, transparent 72%);
+}
+
+.support-visual-frame {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(100, 150, 255, 0.12);
+  background: #ffffff;
+  box-shadow:
+    0 18px 40px rgba(60, 100, 200, 0.12),
+    0 4px 12px rgba(90, 120, 220, 0.06);
+  animation: supportVisualFloat 6s ease-in-out infinite;
+}
+
+/* 画像比率（1086 × 1159）のまま表示し、人物がcropされないようにする */
+.support-visual-frame :deep(.placeholder-image-real) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1086 / 1159;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+@keyframes supportVisualFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+/* Soft Glass Support Panel */
+.support-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* List付近の小さなBubble 1個（装飾・操作不可） */
+.support-list::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: 18px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.9), rgba(120, 170, 255, 0.55));
+  pointer-events: none;
+}
+
+/*
+ * Reveal（既存の v-scroll-reveal-child）を、このSection内だけ少し軽くする（14px / 0.6s）。
+ * .scroll-reveal-child が付いている間だけ効くため、IntersectionObserverが無い環境では常に通常表示。
+ */
+.support-item.scroll-reveal-child {
+  transform: translateY(14px);
+  transition-duration: 0.6s;
+}
+
+.support-item.scroll-reveal-child.is-revealed {
+  transform: translateY(0);
+}
+
+.support-item-inner {
+  --check-a: #6aa8ff;
+  --check-b: #2f6fed;
+  --check-glow: 47, 111, 237;
+
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: 12px;
+  padding: 14px 10px 14px 12px;
+  border-radius: 24px;
+  border: 1px solid rgba(100, 150, 255, 0.1);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.9) 0%, rgba(246, 250, 255, 0.84) 100%);
+  box-shadow: 0 10px 28px rgba(70, 110, 200, 0.08);
+  animation: supportItemFloat 6s ease-in-out infinite;
 }
 
-.support-photo {
-  width: 190px;
+/* Check Circleの色味だけ Blue / Purple / Cyan / Blue-Purple で少しずつ変える */
+.support-item:nth-child(2) .support-item-inner {
+  --check-a: #c09cfb;
+  --check-b: #8b6cf6;
+  --check-glow: 139, 108, 246;
+
+  animation-delay: 0.4s;
+}
+
+.support-item:nth-child(3) .support-item-inner {
+  --check-a: #6fe3f0;
+  --check-b: #1fb4d8;
+  --check-glow: 31, 180, 216;
+
+  animation-delay: 0.8s;
+}
+
+.support-item:nth-child(4) .support-item-inner {
+  --check-a: #8a9cfb;
+  --check-b: #6a5cf0;
+  --check-glow: 106, 92, 240;
+
+  animation-delay: 1.2s;
+}
+
+@keyframes supportItemFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -2px;
+  }
+}
+
+.support-check {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--check-a) 0%, var(--check-b) 100%);
+  box-shadow:
+    0 0 0 5px rgba(var(--check-glow), 0.08),
+    0 6px 14px rgba(var(--check-glow), 0.22);
+  color: #ffffff;
 }
 
-.support-checklist {
-  flex: 1;
+.support-check svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 文節の区切りで折り返し、「ご / 提案」のような単語途中の改行を避ける（非対応ブラウザは通常の折り返し） */
+.support-text {
   min-width: 0;
+  word-break: auto-phrase;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.55;
+  color: var(--color-primary-dark);
 }
 
-.support-checklist :deep(li) {
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.support-checklist :deep(li:last-child) {
-  margin-bottom: 0;
-}
-
+/* 1024px：2カラムを維持し、gap・Check・文字を少しだけ詰める */
 @media (max-width: 1024px) {
   .support-body {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 18px;
   }
 
-  .support-photo {
-    width: 170px;
+  .support-item-inner {
+    gap: 12px;
+    padding: 12px 14px 12px 12px;
+    border-radius: 20px;
+  }
+
+  .support-check {
+    width: 40px;
+    height: 40px;
+  }
+
+  .support-check svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .support-text {
+    font-size: 13.5px;
+  }
+}
+
+/* 900px以下：パネル幅が狭くなるため Visual → Panel の縦並び（Visualは幅を抑えて中央） */
+@media (max-width: 900px) {
+  .support-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .support-visual {
+    width: min(100%, 300px);
+    justify-self: center;
   }
 }
 
 @media (max-width: 767px) {
-  .support-body {
-    align-items: center;
-    text-align: center;
+  .support-visual {
+    width: min(100%, 280px);
   }
 
-  .support-photo {
-    width: 180px;
-    margin-inline: auto;
+  /* 狭い画面で装飾Glowが画面外へはみ出して横スクロールを作らないよう、はみ出し量を抑える */
+  .support-visual-glow-1 {
+    right: -8px;
   }
 
-  .support-checklist {
-    width: 100%;
+  .support-visual-glow-2 {
+    left: -8px;
   }
 
-  .support-checklist :deep(li) {
+  .support-visual-frame {
+    border-radius: 24px;
+    animation-name: supportVisualFloatSp;
+  }
+
+  .support-item.scroll-reveal-child {
+    transform: translateY(11px);
+  }
+
+  .support-item.scroll-reveal-child.is-revealed {
+    transform: translateY(0);
+  }
+
+  .support-item-inner {
+    gap: 12px;
+    padding: 12px 14px 12px 12px;
+    border-radius: 20px;
     text-align: left;
+    animation-name: supportItemFloatSp;
+  }
+
+  .support-check {
+    width: 38px;
+    height: 38px;
+  }
+
+  .support-check svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .support-text {
+    font-size: 14px;
+  }
+
+  @keyframes supportVisualFloatSp {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -2px;
+    }
+  }
+
+  @keyframes supportItemFloatSp {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -1.5px;
+    }
+  }
+}
+
+/* 追加したFloat / Fade-upを停止。Image・Panel・Check・Textはすべて通常表示 */
+@media (prefers-reduced-motion: reduce) {
+  .support-visual-frame,
+  .support-item-inner {
+    animation: none;
+  }
+
+  .support-item.scroll-reveal-child,
+  .support-item.scroll-reveal-child.is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 

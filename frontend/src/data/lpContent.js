@@ -168,11 +168,11 @@ export const aiWorkflowSection = {
   decorativeLabel: 'AI WORK',
   toolsLabel: '主に使えるAIツール',
   tools: [
-    { id: 'chatgpt', name: 'ChatGPT', icon: chatGptIcon },
-    { id: 'copilot', name: 'GitHub Copilot', icon: githubCopilotIcon },
-    { id: 'claude', name: 'Claude', icon: claudeIcon },
-    { id: 'notion-ai', name: 'Notion AI', icon: notionAiIcon },
-    { id: 'figma-ai', name: 'Figma AI', icon: figmaAiIcon },
+    { id: 'chatgpt', name: 'ChatGPT', icon: chatGptIcon, description: '調査・要約・文章作成、アイデア出しなど幅広く活用' },
+    { id: 'copilot', name: 'GitHub Copilot', icon: githubCopilotIcon, description: 'コード生成・補完で開発スピードを向上' },
+    { id: 'claude', name: 'Claude', icon: claudeIcon, description: '複雑な分析・構成検討、長文の整理に活用' },
+    { id: 'notion-ai', name: 'Notion AI', icon: notionAiIcon, description: 'ドキュメント作成・整理、ナレッジの活用に' },
+    { id: 'figma-ai', name: 'Figma AI', icon: figmaAiIcon, description: 'デザインのアイデア出し・作成補助で制作を効率化' },
   ],
   steps: [
     { step: '01', title: '情報収集', description: 'AIで情報を素早くキャッチアップ', icon: aiWorkResearch },

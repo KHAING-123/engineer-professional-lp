@@ -123,9 +123,14 @@ onBeforeUnmount(() => {
   font-size: 21px;
 }
 
-/* 白い紙風のnote。画像には重ねず、Descriptionの右側に配置する */
+/*
+ * 白い紙風のnote。画像には重ねず、Descriptionの右側に配置する。
+ * Heading / Leadと近すぎないよう、top（相対位置のオフセット）で少し下げる。
+ * rotate（transform）・Float（translate）とは別プロパティのため既存Animationと競合せず、周囲のLayoutも変わらない。
+ */
 .interview-note {
   position: relative;
+  top: 22px;
   justify-self: end;
   display: inline-block;
   background: rgba(255, 255, 255, 0.94);
@@ -200,9 +205,12 @@ onBeforeUnmount(() => {
   transform: rotate(-25deg);
 }
 
-/* Checklistが無くなった分のスペースを使い、画像をメインVisualとして大きく表示する */
+/*
+ * Checklistが無くなった分のスペースを使い、画像をメインVisualとして大きく表示する。
+ * noteを下げた分と合わせ、画像も外側wrapperのmarginで30px下げる（内側のReveal / Float / Hoverには触れない）。
+ */
 .interview-visual {
-  margin-top: var(--space-md);
+  margin-top: calc(var(--space-md) + 30px);
 }
 
 /*
@@ -268,12 +276,23 @@ onBeforeUnmount(() => {
   }
 
   .interview-note {
+    top: 16px;
     justify-self: end;
+  }
+
+  .interview-visual {
+    margin-top: calc(var(--space-md) + 24px);
   }
 }
 
 @media (max-width: 767px) {
+  /* SPは移動量を小さく */
+  .interview-visual {
+    margin-top: calc(var(--space-md) + 14px);
+  }
+
   .interview-note {
+    top: 10px;
     font-size: 12px;
     padding: 8px 14px;
     box-shadow:
