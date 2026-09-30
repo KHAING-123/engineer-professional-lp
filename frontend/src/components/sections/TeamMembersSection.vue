@@ -52,9 +52,9 @@ onBeforeUnmount(() => {
 <template>
   <section :id="teamMembersSection.id" class="section team-members">
     <div class="container">
-      <!-- Heading背景の「PEOPLE」はaria-hidden装飾。本文の後ろ（z-index:0）に固定し、操作不可にする -->
+      <!-- Heading背景の「MEMBERS」はaria-hidden装飾。本文の後ろ（z-index:0）に固定し、操作不可にする -->
       <div class="heading-area">
-        <div class="people-bg-text" aria-hidden="true">PEOPLE</div>
+        <div class="people-bg-text" aria-hidden="true">MEMBERS</div>
 
         <div ref="headingRef" class="section-heading-01" :class="{ 'is-revealed': isRevealed }">
           <div class="heading-main">
@@ -118,7 +118,7 @@ onBeforeUnmount(() => {
   background: linear-gradient(180deg, #ffffff 0%, #f2f8ff 35%, #eef5ff 65%, #ffffff 100%);
 }
 
-/* Heading背景の「PEOPLE」演出用ラッパー。はみ出しをここで確実にclipする */
+/* Heading背景の「MEMBERS」演出用ラッパー。はみ出しをここで確実にclipする */
 .heading-area {
   position: relative;
   overflow: hidden;
@@ -744,7 +744,7 @@ onBeforeUnmount(() => {
     align-items: flex-start;
   }
 
-  /* PEOPLE背景文字とぴったり重ならないよう、SPだけ少し下・右へずらす（margin指定でtransformとは競合させない） */
+  /* MEMBERS背景文字とぴったり重ならないよう、SPだけ少し下・右へずらす（margin指定でtransformとは競合させない） */
   .heading-note-wrap {
     margin-top: 20px;
     margin-left: 24px;
